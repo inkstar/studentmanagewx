@@ -185,5 +185,5 @@
     <view class="btn-primary" bindtap="saveLesson">{{isEditMode ? '保存修改' : '保存课程记录'}}</view>
   </view>
 
-  <canvas canvas-id="lessonShareCanvas" class="share-canvas" style="width:720px;height:1080px;"></canvas>
+  <canvas canvas-id="lessonShareCanvas" class="share-canvas" style="width:720px;height:1280px;"></canvas>
 </view>

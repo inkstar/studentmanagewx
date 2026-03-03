@@ -45,6 +45,97 @@ function isThisWeek(dateString) {
   return d >= start && d < end;
 }
 
+function formatDateCN(dateText) {
+  const s = String(dateText || "").trim();
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    return s || "-";
+  }
+  return match[1] + "年" + match[2] + "月" + match[3] + "日";
+}
+
+function statusStyle(status) {
+  const s = String(status || "");
+  if (s === "已取消") {
+    return { bg: "#f8d7da", color: "#721c24", text: "已取消" };
+  }
+  if (s === "已改期") {
+    return { bg: "#fff3cd", color: "#856404", text: "已改期" };
+  }
+  return { bg: "#d4edda", color: "#155724", text: "已完成" };
+}
+
+function roundRectPath(ctx, x, y, w, h, r) {
+  const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function drawRoundedBlock(ctx, x, y, w, h, r, fill, stroke, lineWidth) {
+  roundRectPath(ctx, x, y, w, h, r);
+  if (fill) {
+    ctx.setFillStyle(fill);
+    ctx.fill();
+  }
+  if (stroke) {
+    ctx.setLineWidth(lineWidth || 1);
+    ctx.setStrokeStyle(stroke);
+    ctx.stroke();
+  }
+}
+
+function wrapTextLines(ctx, text, maxWidth) {
+  const value = String(text || "");
+  if (!value) {
+    return [""];
+  }
+  const lines = [];
+  const paragraphList = value.split(/\n/);
+  paragraphList.forEach((paragraph) => {
+    if (!paragraph) {
+      lines.push("");
+      return;
+    }
+    let line = "";
+    for (let i = 0; i < paragraph.length; i += 1) {
+      const ch = paragraph[i];
+      const test = line + ch;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = ch;
+      } else {
+        line = test;
+      }
+    }
+    lines.push(line);
+  });
+  return lines.length ? lines : [""];
+}
+
+function drawParagraph(ctx, opts) {
+  const lines = wrapTextLines(ctx, opts.text, opts.maxWidth);
+  const maxLines = opts.maxLines || 999;
+  let used = 0;
+  for (let i = 0; i < lines.length && used < maxLines; i += 1) {
+    let line = lines[i];
+    const isLastVisible = used === maxLines - 1 && i < lines.length - 1;
+    if (isLastVisible) {
+      while (ctx.measureText(line + "...").width > opts.maxWidth && line.length > 0) {
+        line = line.slice(0, -1);
+      }
+      line += "...";
+    }
+    ctx.fillText(line, opts.x, opts.y + used * opts.lineHeight);
+    used += 1;
+  }
+  return used * opts.lineHeight;
+}
+
 Page({
   data: {
     fatalError: "",
@@ -506,64 +597,140 @@ Page({
 
     const ctx = wx.createCanvasContext("lessonShareCanvas", this);
     const width = 720;
-    const height = 1080;
+    const height = 1280;
+    const pageX = 24;
+    const pageY = 24;
+    const pageW = width - pageX * 2;
+    const pageH = height - pageY * 2;
+    const headerH = 156;
+    const contentX = pageX + 28;
+    const contentY = pageY + headerH + 26;
+    const contentW = pageW - 56;
+    const statusInfo = statusStyle(lesson.status);
+    const now = new Date();
+    const ts =
+      now.getFullYear() +
+      "年" +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      "月" +
+      String(now.getDate()).padStart(2, "0") +
+      "日 " +
+      String(now.getHours()).padStart(2, "0") +
+      ":" +
+      String(now.getMinutes()).padStart(2, "0") +
+      ":" +
+      String(now.getSeconds()).padStart(2, "0");
 
-    ctx.setFillStyle("#f3f7fd");
+    const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+    bgGrad.addColorStop(0, "#FF8C42");
+    bgGrad.addColorStop(1, "#FF6B35");
+    ctx.setFillStyle(bgGrad);
     ctx.fillRect(0, 0, width, height);
 
-    ctx.setFillStyle("#4f46e5");
-    ctx.fillRect(28, 28, width - 56, 120);
-    ctx.setFillStyle("#ffffff");
-    ctx.setFontSize(36);
-    ctx.fillText("课程记录反馈", 56, 98);
+    drawRoundedBlock(ctx, pageX, pageY, pageW, pageH, 20, "#ffffff", null, 0);
+
+    const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
+    headGrad.addColorStop(0, "#FF8C42");
+    headGrad.addColorStop(1, "#FF6B35");
+    drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 20, headGrad, null, 0);
+    ctx.setFillStyle("rgba(255,255,255,0.18)");
+    for (let i = 0; i < 40; i += 1) {
+      const cx = pageX + 20 + ((i * 37) % (pageW - 40));
+      const cy = pageY + 14 + ((i * 29) % (headerH - 20));
+      ctx.beginPath();
+      ctx.arc(cx, cy, i % 3 === 0 ? 1.4 : 0.9, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.setFillStyle("#ffffff");
-    ctx.fillRect(28, 168, width - 56, height - 196);
-    ctx.setStrokeStyle("#d7e5f8");
-    ctx.strokeRect(28, 168, width - 56, height - 196);
+    ctx.setFontSize(44);
+    ctx.fillText("课程记录与反馈", pageX + 38, pageY + 68);
+    ctx.setFontSize(24);
+    ctx.fillText("Lesson Record & Feedback", pageX + 38, pageY + 108);
 
-    const lines = [
-      "学生：" + (lesson.studentName || "-"),
-      "日期：" + (lesson.lessonDate || "-") + " " + (lesson.timeRange || ""),
-      "科目：" + (lesson.subject || "数学") + "    老师：" + (lesson.teacher || "-"),
-      "状态：" + (lesson.status || "已完成"),
-      "",
-      "课程内容",
-      clipText(lesson.content || "无", 180),
-      "",
-      "学生情况",
-      clipText(lesson.studentPerformance || lesson.comment || "无", 180),
-      "",
-      "课后作业",
-      clipText(lesson.homework || "无", 180)
+    const infoTop = contentY;
+    const boxGap = 12;
+    const boxW = (contentW - boxGap) / 2;
+    const boxH = 82;
+    const infoRows = [
+      ["学生姓名", lesson.studentName || "-"],
+      ["课程日期", formatDateCN(lesson.lessonDate)],
+      ["上课时间", (lesson.startTime || "--:--") + " - " + (lesson.endTime || "--:--")],
+      ["科目", lesson.subject || "数学"],
+      ["课程时长", String(lesson.duration || 120) + "分钟"],
+      ["授课老师", lesson.teacher || "-"]
     ];
 
-    let y = 226;
-    lines.forEach((line, idx) => {
-      if (!line) {
-        y += 16;
-        return;
-      }
-      const isTitle = line === "课程内容" || line === "学生情况" || line === "课后作业";
-      ctx.setFontSize(isTitle ? 30 : 24);
-      ctx.setFillStyle(isTitle ? "#312e81" : "#2a3f5d");
-
-      const block = String(line);
-      const chunkSize = isTitle ? 30 : 24;
-      const chunks = [];
-      for (let i = 0; i < block.length; i += chunkSize) {
-        chunks.push(block.slice(i, i + chunkSize));
-      }
-
-      chunks.forEach((chunk) => {
-        ctx.fillText(chunk, 56, y);
-        y += isTitle ? 44 : 36;
+    infoRows.forEach((row, idx) => {
+      const col = idx % 2;
+      const r = Math.floor(idx / 2);
+      const x = contentX + col * (boxW + boxGap);
+      const y = infoTop + r * (boxH + boxGap);
+      drawRoundedBlock(ctx, x, y, boxW, boxH, 12, "#f8f9fa", null, 0);
+      ctx.setFillStyle("#FF6B35");
+      ctx.fillRect(x, y + 10, 6, boxH - 20);
+      ctx.setFillStyle("#6c757d");
+      ctx.setFontSize(18);
+      ctx.fillText(row[0], x + 14, y + 30);
+      ctx.setFillStyle("#333333");
+      ctx.setFontSize(24);
+      drawParagraph(ctx, {
+        text: row[1],
+        x: x + 14,
+        y: y + 60,
+        maxWidth: boxW - 24,
+        lineHeight: 28,
+        maxLines: 1
       });
-
-      if (idx < lines.length - 1) {
-        y += 4;
-      }
     });
+
+    const statusY = infoTop + 3 * (boxH + boxGap) + 12;
+    drawRoundedBlock(ctx, contentX, statusY, 140, 42, 20, statusInfo.bg, null, 0);
+    ctx.setFillStyle(statusInfo.color);
+    ctx.setFontSize(21);
+    ctx.fillText(statusInfo.text, contentX + 30, statusY + 28);
+
+    function drawSection(y, title, text) {
+      ctx.setFillStyle("#FF6B35");
+      ctx.fillRect(contentX, y - 2, 4, 24);
+      ctx.setFillStyle("#FF6B35");
+      ctx.setFontSize(28);
+      ctx.fillText(title, contentX + 12, y + 18);
+      ctx.setStrokeStyle("#e9ecef");
+      ctx.setLineWidth(2);
+      ctx.beginPath();
+      ctx.moveTo(contentX, y + 30);
+      ctx.lineTo(contentX + contentW, y + 30);
+      ctx.stroke();
+
+      const boxY = y + 42;
+      const boxHLocal = 170;
+      drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 12, "#f8f9fa", "#e9ecef", 1);
+      ctx.setFillStyle("#555555");
+      ctx.setFontSize(22);
+      drawParagraph(ctx, {
+        text: text || "暂无内容",
+        x: contentX + 16,
+        y: boxY + 32,
+        maxWidth: contentW - 32,
+        lineHeight: 30,
+        maxLines: 4
+      });
+      return boxY + boxHLocal + 22;
+    }
+
+    let cursorY = statusY + 62;
+    cursorY = drawSection(cursorY, "课程内容", lesson.content);
+    cursorY = drawSection(cursorY, "学生情况", lesson.studentPerformance || lesson.comment || "");
+    cursorY = drawSection(cursorY, "课后作业", lesson.homework);
+
+    const footerH = 62;
+    const footerY = pageY + pageH - footerH;
+    drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8f9fa", "#e9ecef", 1);
+    ctx.setFillStyle("#6c757d");
+    ctx.setFontSize(18);
+    ctx.fillText("生成时间: " + ts, pageX + 28, footerY + 26);
+    ctx.fillText("学生课程管理系统 v1.0", pageX + 28, footerY + 50);
 
     ctx.draw(false, () => {
       wx.canvasToTempFilePath(

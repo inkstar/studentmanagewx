@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 01:43] Phase 25 - 课程导出图片样式对齐本地导出页（Done）
+- 目标：参考 `http://127.0.0.1:8080/api/lessons/155/export?type=image` 的导出模板，重做小程序课程导出图片版式。
+- 改动文件：`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
+- 验收标准：导出图采用橙色渐变头图、信息宫格、三段内容区、状态徽章与灰底页脚，整体信息层次与目标样式一致。
+- 风险与回滚：风险为不同机型 canvas 文本测量存在换行差异；回滚方式为 `git revert` 本阶段提交并恢复旧版导出卡片。
+
 ## [UTC+8 2026-03-04 01:35] Phase 24 - 复制 educonnect 三页逻辑与风格（Done）
 - 目标：将仪表盘、学生管理、课程记录三页完整迁移为 `educonnect-main` 的交互逻辑与视觉结构，并保持现有数据读写能力。
 - 改动文件：`pages/index/index.js`、`pages/index/index.wxml`、`pages/index/index.wxss`、`pages/students/students.js`、`pages/students/students.wxml`、`pages/students/students.wxss`、`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
@@ -161,6 +167,7 @@
 - Phase 22 参考 read3 的学生与课程模块重构：Done
 - Phase 23 参考 educonnect-main 的 UI 主题重构：Done
 - Phase 24 复制 educonnect 三页逻辑与风格：Done
+- Phase 25 课程导出图片样式对齐本地导出页：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -188,6 +195,7 @@
 - 2026-03-04：完成 read3 版学生与课程模块重构，课程页支持筛选/增改删复制/导出图片与 Markdown 预览。
 - 2026-03-04：完成 educonnect 风格主题改版，统一全局配色并确保 `00/` 目录不入库。
 - 2026-03-04：完成仪表盘/学生管理/课程记录三页按 educonnect 逻辑与风格迁移，保留小程序业务操作闭环。
+- 2026-03-04：完成课程导出图片改版，导出样式对齐本地 /api/lessons/.../export?type=image 模板。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。
