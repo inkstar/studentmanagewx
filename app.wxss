@@ -45,3 +45,76 @@ page {
   color: #0284c7;
   font-weight: 700;
 }
+
+.label {
+  display: block;
+  margin: 8rpx 0;
+  color: #334155;
+  font-size: 26rpx;
+}
+
+.input {
+  border: 1rpx solid #dbe3ef;
+  border-radius: 10rpx;
+  padding: 14rpx 18rpx;
+  margin-bottom: 12rpx;
+  background: #fff;
+}
+
+.textarea {
+  border: 1rpx solid #dbe3ef;
+  border-radius: 10rpx;
+  min-height: 120rpx;
+  padding: 14rpx 18rpx;
+  margin-bottom: 12rpx;
+  background: #fff;
+}
+
+.picker {
+  border: 1rpx solid #dbe3ef;
+  border-radius: 10rpx;
+  padding: 14rpx 18rpx;
+  margin-bottom: 12rpx;
+  color: #0f172a;
+}
+
+.btn-primary {
+  background: #0284c7;
+  color: #fff;
+  border-radius: 10rpx;
+  padding: 14rpx 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.btn-ghost {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-radius: 10rpx;
+  padding: 12rpx 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.badge {
+  background: #e0f2fe;
+  color: #0c4a6e;
+  border-radius: 999rpx;
+  padding: 4rpx 14rpx;
+  font-size: 24rpx;
+}
+
+.mt-12 {
+  margin-top: 12rpx;
+}
+
+.mt-20 {
+  margin-top: 20rpx;
+}

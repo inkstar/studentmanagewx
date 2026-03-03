@@ -1,13 +1,29 @@
 <view class="container">
   <view class="card">
     <view class="title">学生管理</view>
-    <view class="sub">首版支持按班级查看学生列表，后续接入搜索、筛选、导入和详情编辑。</view>
+    <input class="input" placeholder="搜索姓名/班级/手机号" value="{{keyword}}" bindinput="onKeywordInput" />
   </view>
 
   <view class="card">
-    <view class="sub">示例数据</view>
-    <view wx:for="{{students}}" wx:key="id" style="margin-top: 12rpx;">
-      <text>{{item.name}} · {{item.className}}</text>
+    <view class="title">新增学生</view>
+    <input class="input" placeholder="姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
+    <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
+      <view class="picker">班级：{{currentClassName}}</view>
+    </picker>
+    <input class="input" placeholder="手机号（选填）" data-key="phone" value="{{form.phone}}" bindinput="onFormInput" />
+    <input class="input" placeholder="家长称呼（选填）" data-key="guardian" value="{{form.guardian}}" bindinput="onFormInput" />
+    <view class="btn-primary" bindtap="addStudent">保存学生</view>
+  </view>
+
+  <view class="card">
+    <view class="title">学生列表（{{students.length}}）</view>
+    <view wx:if="{{!students.length}}" class="sub">暂无数据</view>
+    <view wx:for="{{students}}" wx:key="id" class="row mt-12" bindtap="toStudentDetail" data-id="{{item.id}}">
+      <view>
+        <view>{{item.name}}</view>
+        <view class="sub">{{item.className}} · {{item.phone || '未填写手机号'}}</view>
+      </view>
+      <view class="badge">详情</view>
     </view>
   </view>
 </view>

@@ -1,0 +1,51 @@
+<view class="container" wx:if="{{student}}">
+  <view class="card">
+    <view class="title">{{student.name}}</view>
+    <view class="sub">班级：{{student.className}}</view>
+    <view class="sub">手机号：{{student.phone || '未填写'}}</view>
+    <view class="sub">家长：{{student.guardian || '未填写'}}</view>
+  </view>
+
+  <view class="card">
+    <view class="title">薄弱点记录</view>
+    <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
+      <view class="picker">标签：{{currentTagName}}</view>
+    </picker>
+    <textarea class="textarea" placeholder="备注（选填）" value="{{weaknessNote}}" bindinput="onWeaknessNoteInput" />
+    <view class="btn-primary" bindtap="addWeakness">新增薄弱点</view>
+
+    <view wx:if="{{!weaknessLogs.length}}" class="sub mt-12">暂无记录</view>
+    <view wx:for="{{weaknessLogs}}" wx:key="id" class="mt-12">
+      <view class="row">
+        <text>{{item.tagName}}</text>
+        <text class="badge">{{item.sourceType}}</text>
+      </view>
+      <view class="sub">{{item.note || '无备注'}} · {{item.createdAt}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="title">考试记录</view>
+    <view wx:if="{{!examRecords.length}}" class="sub">暂无考试记录</view>
+    <view wx:for="{{examRecords}}" wx:key="id" class="mt-12">
+      <view class="row">
+        <text>{{item.examName}}</text>
+        <text class="badge">总分 {{item.totalScore}}</text>
+      </view>
+      <view class="sub">{{item.examDate}} · 数学{{item.subjectScores.math}} / 英语{{item.subjectScores.english}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="title">课堂记录</view>
+    <view wx:if="{{!lessonRecords.length}}" class="sub">暂无课堂记录</view>
+    <view wx:for="{{lessonRecords}}" wx:key="lessonId" class="mt-12">
+      <view class="row">
+        <text>{{item.lessonDate}}</text>
+        <text class="badge">{{item.attendance}}</text>
+      </view>
+      <view class="sub">{{item.content || '未填写课程内容'}}</view>
+      <view class="sub">{{item.comment || '无课堂评语'}}</view>
+    </view>
+  </view>
+</view>

@@ -1,45 +1,55 @@
 # 学生管理小程序
 
-面向教培机构老师与管理员的学生管理微信小程序，聚焦学生档案、课堂登记、成绩记录和薄弱点追踪。
+面向教培机构老师与管理员的微信小程序，覆盖学生档案、课堂登记、成绩记录、薄弱点分析。
 
-## 项目目标
-1. 提升老师课堂记录效率。
-2. 形成可追踪的学习数据闭环。
-3. 为机构提供统一的数据管理与导出能力。
+## 当前实现（可运行）
+1. 工作台：统计学生数、课堂记录数、本周考试、薄弱点预警。
+2. 学生：搜索、新增、查看学生详情。
+3. 课堂：按班级登记出勤与评语并保存。
+4. 成绩：录入考试成绩、关联薄弱点标签、查看最近成绩。
+5. 薄弱点：在学生详情页手动记录，支持统计 Top5。
+6. 我的：显示数据概览，支持重置示例数据。
 
-## 功能范围（MVP）
-1. 学生基本信息管理。
-2. 每次上课情况登记。
-3. 考试成绩记录（总分 + 科目分 + 评语）。
-4. 薄弱点标签记录与分析。
-5. 管理员配置班级、课程、科目与老师绑定。
-6. 支持 CSV 导入、CSV/PDF 导出。
+## 数据来源
+- 小程序运行时使用本地存储（`wx.setStorageSync`）。
+- 初始化种子数据优先来自 `data/student_info.seed.json`。
+- `data/student_info.seed.json` 由根目录 `student_info.db` 同步生成。
 
-## 技术方案
-- 客户端：微信小程序原生 + TypeScript。
-- 服务端：微信云开发（云函数、云数据库、云存储）。
-- 权限模型：老师仅可访问自己班级，管理员可全局管理。
+## student_info.db 同步方法
+前置：本机可用 `sqlite3` 与 `node`。
+
+在项目根目录执行：
+
+```bash
+node scripts/sync-from-sqlite.mjs
+```
+
+执行后会更新：
+- `data/student_info.seed.json`
+
+字段映射（核心）：
+1. `student` -> `students`
+2. `lesson` -> `lessons`
+3. `progress_record` -> `exams`
+4. `weak_topics/topic` -> `tags + weaknessLogs`
+
+## 启动方式（微信开发者工具）
+1. 打开项目目录：`/Users/shenchaonan/Documents/New project/学生管理小程序`
+2. 若提示基础库下载失败，先切换较低基础库版本（例如 3.10.x）再重试。
+3. 编译后默认进入“工作台”页。
 
 ## 目录说明
-- `PRD.md`：产品需求文档。
-- `README.md`：项目说明与协作入口。
-- `PLAN.md`：计划与执行进度记录（唯一事实来源）。
+- `app.json` / `app.js` / `app.wxss`：小程序入口。
+- `pages/`：页面实现。
+- `utils/db.js`：前端数据层与业务查询。
+- `scripts/sync-from-sqlite.mjs`：SQLite 数据同步脚本。
+- `data/student_info.seed.json`：由 SQLite 导出的种子数据。
+- `PLAN.md`：计划与执行进度。
+- `PRD.md`：需求文档。
 
-## 快速开始（文档阶段）
-1. 克隆仓库并进入项目目录。
-2. 阅读 `PRD.md` 与 `PLAN.md` 明确范围与进度。
-3. 按 `PLAN.md` 后续开发阶段推进代码实现。
+## 注意事项
+1. `student_info.db` 属于本地业务数据，默认不纳入 Git 版本管理。
+2. 提交代码前可先运行同步脚本，确保演示数据与 DB 一致。
 
-## 开发约定
-1. 文档与需求以中文为准。
-2. 每个阶段完成后必须更新 `PLAN.md` 并提交推送。
-3. 所有变更默认提交到 `main` 分支（当前策略）。
-
-## 路线图
-1. 阶段一：PRD 需求基线。
-2. 阶段二：README 项目入口与协作规范。
-3. 阶段三：PLAN 收敛与执行追踪完善。
-4. 阶段四：进入代码开发（页面、云函数、数据模型与联调）。
-
-## 维护
-- 仓库地址：[inkstar/studentmanagewx](https://github.com/inkstar/studentmanagewx)
+## 仓库
+- [inkstar/studentmanagewx](https://github.com/inkstar/studentmanagewx)

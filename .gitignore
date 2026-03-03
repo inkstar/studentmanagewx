@@ -19,3 +19,6 @@ build/
 
 # WeChat private config
 project.private.config.json
+
+# Local business db
+student_info.db

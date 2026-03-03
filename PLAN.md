@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-03 23:00] Phase 5 - SQLite 数据接入与业务页面联动（Done）
+- 目标：支持读取 `student_info.db` 的数据结构并驱动小程序业务页面，完成学生/课堂/成绩/薄弱点四条链路的可操作 MVP。
+- 改动文件：`utils/db.js`、`scripts/sync-from-sqlite.mjs`、`data/student_info.seed.json`、`app.json`、`app.js`、`app.wxss`、`pages/index/*`、`pages/students/*`、`pages/student-detail/*`、`pages/lesson/*`、`pages/scores/*`、`pages/profile/*`、`README.md`、`.gitignore`、`PLAN.md`。
+- 验收标准：可通过脚本从 `student_info.db` 生成种子数据；小程序能展示 DB 导入的学生/课堂/成绩数据；可继续新增学生、登记课堂、录入成绩并产生薄弱点记录。
+- 风险与回滚：风险为 SQLite 字段变化导致同步脚本失效；回滚方式为 `git revert` 本阶段提交，恢复到上一阶段并修复脚本后重推。
+
 ## [UTC+8 2026-03-03 22:45] Phase 4 - 小程序可运行骨架搭建（Done）
 - 目标：修复开发者工具“缺少 app.json”启动失败问题，完成首个可运行的小程序基础骨架。
 - 改动文件：`app.json`、`app.js`、`app.wxss`、`sitemap.json`、`pages/index/*`、`pages/students/*`、`pages/lesson/*`、`pages/profile/*`、`PLAN.md`。
@@ -21,6 +27,7 @@
 - Phase 2 README：Done
 - Phase 3 PLAN 收敛：Done
 - Phase 4 小程序骨架：Done
+- Phase 5 SQLite 接入与业务联动：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -28,6 +35,7 @@
 - 2026-03-03：完成 `README.md` 并推送阶段提交。
 - 2026-03-03：完成 `PLAN.md` 收敛并推送阶段提交。
 - 2026-03-03：完成小程序运行骨架搭建并修复 `app.json` 缺失问题。
+- 2026-03-03：完成 `student_info.db` 同步脚本与 DB 数据映射，业务页面联调通过。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。

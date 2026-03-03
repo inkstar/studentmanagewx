@@ -1,25 +1,37 @@
 <view class="container">
   <view class="card">
     <view class="title">教学工作台</view>
-    <view class="sub">欢迎使用学生管理小程序。这里将聚合今日课程、待补记录和最近成绩提醒。</view>
+    <view class="sub">聚合今日教学进度、成绩与薄弱点数据，支持老师快速回顾。</view>
   </view>
 
   <view class="grid">
     <view class="stat">
-      <view class="sub">今日课程</view>
-      <view class="stat-num">3</view>
+      <view class="sub">学生总数</view>
+      <view class="stat-num">{{stats.totalStudents}}</view>
     </view>
     <view class="stat">
-      <view class="sub">待补记录</view>
-      <view class="stat-num">2</view>
+      <view class="sub">课堂记录</view>
+      <view class="stat-num">{{stats.totalLessons}}</view>
     </view>
     <view class="stat">
       <view class="sub">本周考试</view>
-      <view class="stat-num">1</view>
+      <view class="stat-num">{{stats.weeklyExams}}</view>
     </view>
     <view class="stat">
       <view class="sub">薄弱点预警</view>
-      <view class="stat-num">8</view>
+      <view class="stat-num">{{stats.weaknessAlerts}}</view>
     </view>
+  </view>
+
+  <view class="card" wx:if="{{latestLesson}}">
+    <view class="title">最近一节课</view>
+    <view class="sub">日期：{{latestLesson.lessonDate}}</view>
+    <view class="sub">内容：{{latestLesson.content || '未填写'}}</view>
+    <view class="sub">出勤 {{latestLesson.present}} / 迟到 {{latestLesson.late}} / 缺勤 {{latestLesson.absent}}</view>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="title">最近一节课</view>
+    <view class="sub">暂无课堂记录，请前往“课堂”页登记。</view>
   </view>
 </view>

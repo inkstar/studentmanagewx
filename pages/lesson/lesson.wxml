@@ -1,11 +1,28 @@
 <view class="container">
   <view class="card">
     <view class="title">课堂登记</view>
-    <view class="sub">在这里登记每次上课情况：出勤、课堂表现、作业完成度和课堂评语。</view>
+    <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
+      <view class="picker">班级：{{currentClassName}}</view>
+    </picker>
+    <input class="input" placeholder="上课日期，如 2026-03-03" value="{{lessonDate}}" bindinput="onDateInput" />
+    <input class="input" placeholder="本节课内容" value="{{content}}" bindinput="onContentInput" />
+    <input class="input" placeholder="课后作业" value="{{homework}}" bindinput="onHomeworkInput" />
   </view>
 
   <view class="card">
-    <view class="sub">最近一节课：初二数学1班</view>
-    <view style="margin-top: 12rpx;">应到 20 人，实到 19 人，缺勤 1 人</view>
+    <view class="title">学生出勤与评语</view>
+    <view wx:if="{{!students.length}}" class="sub">当前班级暂无学生</view>
+
+    <view wx:for="{{students}}" wx:key="id" class="mt-20">
+      <view class="row">
+        <text>{{item.name}}</text>
+        <picker mode="selector" range="{{attendanceOptions}}" value="{{records[index].attendanceIndex}}" bindchange="onAttendanceChange" data-index="{{index}}">
+          <view class="badge">{{records[index].attendance}}</view>
+        </picker>
+      </view>
+      <input class="input mt-12" placeholder="课堂评语（选填）" value="{{records[index].comment}}" bindinput="onCommentInput" data-index="{{index}}" />
+    </view>
   </view>
+
+  <view class="btn-primary" bindtap="saveLesson">保存本节课记录</view>
 </view>
