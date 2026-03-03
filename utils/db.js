@@ -6,6 +6,7 @@ try {
 }
 const KEY = "student_manage_db_v2";
 const GRADE_OPTIONS = ["六年级", "七年级", "八年级", "九年级", "高一", "高二", "高三"];
+const CLASS_TYPE_OPTIONS = ["1v1", "1v3"];
 
 function createSeedData() {
   if (DBSeedFromSQLite && Array.isArray(DBSeedFromSQLite.students) && DBSeedFromSQLite.students.length) {
@@ -41,6 +42,26 @@ function inferGradeFromStudent(student, classMap) {
   const className = classMap[(student || {}).classId] || "";
   const found = GRADE_OPTIONS.find((g) => className.indexOf(g) >= 0);
   return found || "高一";
+}
+
+function inferClassTypeFromStudent(student, classMap) {
+  if (student && student.classType && CLASS_TYPE_OPTIONS.indexOf(student.classType) >= 0) {
+    return student.classType;
+  }
+  const className = classMap[(student || {}).classId] || "";
+  if (className.indexOf("1v3") >= 0) {
+    return "1v3";
+  }
+  return "1v1";
+}
+
+function inferHomeroomFromStudent(student, classMap) {
+  if (student && student.homeroomTeacher) {
+    return student.homeroomTeacher;
+  }
+  const className = classMap[(student || {}).classId] || "";
+  const arr = className.split("-");
+  return arr.length >= 3 ? arr[2] : "";
 }
 
 function ensureClassForGrade(db, grade) {
@@ -98,6 +119,10 @@ function getGradeOptions() {
   return GRADE_OPTIONS.slice();
 }
 
+function getClassTypeOptions() {
+  return CLASS_TYPE_OPTIONS.slice();
+}
+
 function getTags() {
   return readDB().tags;
 }
@@ -134,10 +159,17 @@ function getStudents(query) {
     id: s.id,
     name: s.name,
     grade: inferGradeFromStudent(s, classMap),
+    classType: inferClassTypeFromStudent(s, classMap),
+    homeroomTeacher: inferHomeroomFromStudent(s, classMap),
     classId: s.classId,
     className: classMap[s.classId] || "未分班",
     phone: s.phone,
     guardian: s.guardian,
+    parentPhone: s.parentPhone || "",
+    email: s.email || "",
+    address: s.address || "",
+    notes: s.notes || "",
+    weakTopics: Array.isArray(s.weakTopics) ? s.weakTopics : [],
     lessonCount: lessonCountMap[s.id] || 0,
     examCount: examCountMap[s.id] || 0
   }));
@@ -162,14 +194,34 @@ function getStudentById(studentId) {
 function addStudent(payload) {
   const db = readDB();
   const grade = payload.grade && GRADE_OPTIONS.indexOf(payload.grade) >= 0 ? payload.grade : "高一";
-  const classId = payload.classId || ensureClassForGrade(db, grade);
+  const classType =
+    payload.classType && CLASS_TYPE_OPTIONS.indexOf(payload.classType) >= 0 ? payload.classType : "1v1";
+  const homeroomTeacher = String(payload.homeroomTeacher || "").trim();
+  const className = grade + "-" + classType + "-" + (homeroomTeacher || "未分配");
+  let classId = payload.classId || "";
+  if (!classId) {
+    const found = db.classes.find((c) => c.name === className);
+    if (found) {
+      classId = found.id;
+    } else {
+      classId = uid("class");
+      db.classes.unshift({ id: classId, name: className });
+    }
+  }
   const item = {
     id: uid("stu"),
     name: payload.name,
     grade,
+    classType,
+    homeroomTeacher,
     classId,
     phone: payload.phone || "",
-    guardian: payload.guardian || ""
+    guardian: payload.guardian || "",
+    parentPhone: payload.parentPhone || "",
+    email: payload.email || "",
+    address: payload.address || "",
+    notes: payload.notes || "",
+    weakTopics: Array.isArray(payload.weakTopics) ? payload.weakTopics : []
   };
   db.students.unshift(item);
   writeDB(db);
@@ -185,15 +237,41 @@ function updateStudent(studentId, payload) {
 
   const current = db.students[idx];
   const grade = payload.grade && GRADE_OPTIONS.indexOf(payload.grade) >= 0 ? payload.grade : current.grade || "高一";
-  const classId = ensureClassForGrade(db, grade);
+  const classType =
+    payload.classType && CLASS_TYPE_OPTIONS.indexOf(payload.classType) >= 0
+      ? payload.classType
+      : current.classType || "1v1";
+  const homeroomTeacher =
+    payload.homeroomTeacher != null ? String(payload.homeroomTeacher).trim() : current.homeroomTeacher || "";
+  const className = grade + "-" + classType + "-" + (homeroomTeacher || "未分配");
+  let classId = current.classId;
+  const found = db.classes.find((c) => c.name === className);
+  if (found) {
+    classId = found.id;
+  } else {
+    classId = uid("class");
+    db.classes.unshift({ id: classId, name: className });
+  }
 
   const updated = {
     ...current,
     name: payload.name != null ? String(payload.name).trim() : current.name,
     grade,
+    classType,
+    homeroomTeacher,
     classId,
     phone: payload.phone != null ? String(payload.phone).trim() : current.phone,
-    guardian: payload.guardian != null ? String(payload.guardian).trim() : current.guardian
+    guardian: payload.guardian != null ? String(payload.guardian).trim() : current.guardian,
+    parentPhone:
+      payload.parentPhone != null ? String(payload.parentPhone).trim() : current.parentPhone || "",
+    email: payload.email != null ? String(payload.email).trim() : current.email || "",
+    address: payload.address != null ? String(payload.address).trim() : current.address || "",
+    notes: payload.notes != null ? String(payload.notes) : current.notes || "",
+    weakTopics: Array.isArray(payload.weakTopics)
+      ? payload.weakTopics
+      : Array.isArray(current.weakTopics)
+      ? current.weakTopics
+      : []
   };
 
   db.students[idx] = updated;
@@ -217,9 +295,16 @@ function addStudentsBatch(items) {
       id: uid("stu"),
       name,
       grade,
+      classType: CLASS_TYPE_OPTIONS.indexOf(item.classType) >= 0 ? item.classType : "1v1",
+      homeroomTeacher: String(item.homeroomTeacher || "").trim(),
       classId,
       phone: String(item.phone || "").trim(),
-      guardian: String(item.guardian || "").trim()
+      guardian: String(item.guardian || "").trim(),
+      parentPhone: String(item.parentPhone || "").trim(),
+      email: String(item.email || "").trim(),
+      address: String(item.address || "").trim(),
+      notes: String(item.notes || "").trim(),
+      weakTopics: Array.isArray(item.weakTopics) ? item.weakTopics : []
     };
     db.students.unshift(student);
     created.push(student);
@@ -261,14 +346,60 @@ function saveLesson(payload) {
     teacher: payload.teacher || "",
     duration: Number(payload.duration || 120),
     status: payload.status || "已完成",
-    content: payload.content,
-    homework: payload.homework,
-    records: payload.records,
+    startTime: payload.startTime || "",
+    endTime: payload.endTime || "",
+    studentPerformance: payload.studentPerformance || "",
+    topic: payload.topic || "",
+    learnedTopics: payload.learnedTopics || "",
+    weakTopics: Array.isArray(payload.weakTopics) ? payload.weakTopics : [],
+    notes: payload.notes || "",
+    content: payload.content || "",
+    homework: payload.homework || "",
+    records: Array.isArray(payload.records) ? payload.records : [],
     createdAt: Date.now()
   };
   db.lessons.unshift(lesson);
   writeDB(db);
   return lesson;
+}
+
+function updateLesson(lessonId, payload) {
+  const db = readDB();
+  const idx = db.lessons.findIndex((l) => l.id === lessonId);
+  if (idx < 0) {
+    return null;
+  }
+  const current = db.lessons[idx];
+  const next = {
+    ...current,
+    lessonDate: payload.lessonDate != null ? payload.lessonDate : current.lessonDate,
+    subject: payload.subject != null ? payload.subject : current.subject,
+    teacher: payload.teacher != null ? payload.teacher : current.teacher,
+    duration: payload.duration != null ? Number(payload.duration) : current.duration,
+    status: payload.status != null ? payload.status : current.status,
+    startTime: payload.startTime != null ? payload.startTime : current.startTime || "",
+    endTime: payload.endTime != null ? payload.endTime : current.endTime || "",
+    studentPerformance:
+      payload.studentPerformance != null ? payload.studentPerformance : current.studentPerformance || "",
+    topic: payload.topic != null ? payload.topic : current.topic || "",
+    learnedTopics: payload.learnedTopics != null ? payload.learnedTopics : current.learnedTopics || "",
+    weakTopics: Array.isArray(payload.weakTopics) ? payload.weakTopics : current.weakTopics || [],
+    notes: payload.notes != null ? payload.notes : current.notes || "",
+    content: payload.content != null ? payload.content : current.content,
+    homework: payload.homework != null ? payload.homework : current.homework,
+    records: Array.isArray(payload.records) ? payload.records : current.records
+  };
+  db.lessons[idx] = next;
+  writeDB(db);
+  return next;
+}
+
+function deleteLesson(lessonId) {
+  const db = readDB();
+  const before = db.lessons.length;
+  db.lessons = db.lessons.filter((l) => l.id !== lessonId);
+  writeDB(db);
+  return before !== db.lessons.length;
 }
 
 function getLessons(options) {
@@ -316,13 +447,23 @@ function getLessons(options) {
       studentName:
         (l.records && l.records[0] && studentMap[l.records[0].studentId] && studentMap[l.records[0].studentId].name) ||
         "",
+      studentId: (l.records && l.records[0] && l.records[0].studentId) || "",
       lessonDate: l.lessonDate,
       subject: l.subject || "数学",
       teacher: l.teacher || "",
       duration: l.duration || 120,
       status: l.status || "已完成",
+      startTime: l.startTime || "",
+      endTime: l.endTime || "",
+      studentPerformance: l.studentPerformance || "",
+      topic: l.topic || "",
+      learnedTopics: l.learnedTopics || "",
+      weakTopics: Array.isArray(l.weakTopics) ? l.weakTopics : [],
+      notes: l.notes || "",
       content: l.content || "",
       homework: l.homework || "",
+      attendance: (l.records && l.records[0] && l.records[0].attendance) || "出勤",
+      comment: (l.records && l.records[0] && l.records[0].comment) || "",
       studentCount: Array.isArray(l.records) ? l.records.length : 0
     }));
 
@@ -349,6 +490,13 @@ function getLessonsByStudent(studentId) {
         teacher: l.teacher || "",
         duration: l.duration || 120,
         status: l.status || "已完成",
+        startTime: l.startTime || "",
+        endTime: l.endTime || "",
+        studentPerformance: l.studentPerformance || "",
+        topic: l.topic || "",
+        learnedTopics: l.learnedTopics || "",
+        weakTopics: Array.isArray(l.weakTopics) ? l.weakTopics : [],
+        notes: l.notes || "",
         content: l.content,
         attendance: found.attendance,
         comment: found.comment || ""
@@ -557,6 +705,7 @@ function getLatestLessonSummary() {
 module.exports = {
   getClasses,
   getGradeOptions,
+  getClassTypeOptions,
   getTags,
   getStudents,
   getStudentById,
@@ -565,6 +714,8 @@ module.exports = {
   addStudentsBatch,
   deleteStudent,
   getLessons,
+  updateLesson,
+  deleteLesson,
   saveLesson,
   getLessonsByStudent,
   saveExam,

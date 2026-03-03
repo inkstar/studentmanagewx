@@ -1,1 +1,110 @@
-/* 使用 app.wxss 全局样式 */
+.table-filters {
+  display: flex;
+  gap: 12rpx;
+}
+
+.table-filters .input,
+.table-filters .picker {
+  margin-bottom: 0;
+}
+
+.filter-picker {
+  min-width: 190rpx;
+}
+
+.action-btn {
+  height: 66rpx;
+  line-height: 66rpx;
+  padding: 0 20rpx;
+}
+
+.lesson-item {
+  background: #fafdff;
+}
+
+.lesson-title {
+  font-weight: 600;
+  color: #15345f;
+}
+
+.op-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8rpx;
+}
+
+.op-btn {
+  min-width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 8rpx;
+  border: 1rpx solid;
+  font-size: 22rpx;
+  padding: 0 8rpx;
+}
+
+.op-view {
+  color: #00a8f0;
+  border-color: #00a8f0;
+}
+
+.op-edit {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.op-copy {
+  color: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.op-img {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.op-del {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.editor-area {
+  min-height: 300rpx;
+}
+
+.textarea-xl {
+  min-height: 300rpx;
+}
+
+.preview-card {
+  background: #f6faff;
+  border: 1rpx solid #d9e8fb;
+  box-shadow: none;
+  margin-bottom: 0;
+}
+
+.preview-block + .preview-block {
+  margin-top: 14rpx;
+}
+
+.preview-title {
+  font-size: 24rpx;
+  color: #204879;
+  font-weight: 600;
+}
+
+.preview-text {
+  margin-top: 6rpx;
+  color: #415c80;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.share-canvas {
+  position: fixed;
+  left: -9999rpx;
+  top: -9999rpx;
+  width: 720px;
+  height: 1080px;
+}

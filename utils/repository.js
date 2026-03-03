@@ -24,6 +24,11 @@ function getGradeOptions() {
   return db.getGradeOptions();
 }
 
+function getClassTypeOptions() {
+  warnCloudFallback();
+  return db.getClassTypeOptions();
+}
+
 function getTags() {
   warnCloudFallback();
   return db.getTags();
@@ -62,6 +67,16 @@ function deleteStudent(studentId) {
 function getLessons(options) {
   warnCloudFallback();
   return db.getLessons(options);
+}
+
+function updateLesson(lessonId, payload) {
+  warnCloudFallback();
+  return db.updateLesson(lessonId, payload);
+}
+
+function deleteLesson(lessonId) {
+  warnCloudFallback();
+  return db.deleteLesson(lessonId);
 }
 
 function saveLesson(payload) {
@@ -130,6 +145,7 @@ function getRawDB() {
 module.exports = {
   getClasses,
   getGradeOptions,
+  getClassTypeOptions,
   getTags,
   getStudents,
   getStudentById,
@@ -138,6 +154,8 @@ module.exports = {
   addStudentsBatch,
   deleteStudent,
   getLessons,
+  updateLesson,
+  deleteLesson,
   saveLesson,
   getLessonsByStudent,
   saveExam,

@@ -19,8 +19,21 @@ function toCSV(headers, rows) {
 function exportStudentsCSV() {
   const students = db.getStudents("");
   return toCSV(
-    ["学生ID", "姓名", "班级", "手机号", "家长"],
-    students.map((s) => [s.id, s.name, s.className, s.phone, s.guardian])
+    ["学生ID", "姓名", "年级", "班型", "班主任", "学生电话", "家长电话", "家长称呼", "邮箱", "地址", "薄弱知识点", "备注"],
+    students.map((s) => [
+      s.id,
+      s.name,
+      s.grade || "",
+      s.classType || "",
+      s.homeroomTeacher || "",
+      s.phone || "",
+      s.parentPhone || "",
+      s.guardian || "",
+      s.email || "",
+      s.address || "",
+      (s.weakTopics || []).join("|"),
+      s.notes || ""
+    ])
   );
 }
 
@@ -37,18 +50,49 @@ function exportLessonsCSV() {
       rows.push([
         lesson.id,
         lesson.lessonDate,
+        lesson.startTime || "",
+        lesson.endTime || "",
+        lesson.subject || "数学",
+        lesson.teacher || "",
+        lesson.status || "已完成",
+        lesson.duration || 120,
         lesson.classId,
         studentMap[r.studentId] || r.studentId,
         r.attendance,
         r.comment || "",
         lesson.content || "",
-        lesson.homework || ""
+        lesson.studentPerformance || "",
+        lesson.homework || "",
+        lesson.topic || "",
+        lesson.learnedTopics || "",
+        Array.isArray(lesson.weakTopics) ? lesson.weakTopics.join("|") : "",
+        lesson.notes || ""
       ]);
     });
   });
 
   return toCSV(
-    ["课堂ID", "日期", "班级ID", "学生", "出勤", "评语", "课程内容", "作业"],
+    [
+      "课堂ID",
+      "日期",
+      "开始时间",
+      "结束时间",
+      "科目",
+      "授课老师",
+      "课程状态",
+      "时长(分钟)",
+      "班级ID",
+      "学生",
+      "出勤",
+      "评语",
+      "课程内容",
+      "学生情况",
+      "课后作业",
+      "知识点",
+      "本节学习知识点",
+      "薄弱知识点",
+      "备注"
+    ],
     rows
   );
 }

@@ -42,15 +42,19 @@
 }
 
 .col-name {
-  width: 16%;
+  width: 13%;
 }
 
 .col-grade {
-  width: 14%;
+  width: 11%;
 }
 
-.col-phone {
-  width: 20%;
+.col-class {
+  width: 11%;
+}
+
+.col-head {
+  width: 14%;
   color: #2d415d;
 }
 
@@ -60,7 +64,7 @@
 }
 
 .col-action {
-  width: 18%;
+  width: 19%;
 }
 
 .grade-pill {
@@ -68,6 +72,15 @@
   border-radius: 8rpx;
   padding: 4rpx 10rpx;
   background: #1f7ae0;
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.class-pill {
+  display: inline-block;
+  border-radius: 8rpx;
+  padding: 4rpx 10rpx;
+  background: #1f9d55;
   color: #fff;
   font-size: 22rpx;
 }

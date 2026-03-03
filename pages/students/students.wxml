@@ -1,7 +1,7 @@
 <view class="container">
   <view class="hero">
     <view class="hero-title">学生管理</view>
-    <view class="hero-sub">记录清单模式，支持筛选、导出、新增、编辑、删除。</view>
+    <view class="hero-sub">基础信息、班型、班主任与薄弱知识点统一管理。</view>
     <view class="chip-row">
       <view class="chip">筛选 {{gradeFilterOptions[filterGradeIndex]}}</view>
       <view class="chip">数量 {{students.length}}</view>
@@ -28,7 +28,8 @@
       <view class="table-head row">
         <text class="col-name">姓名</text>
         <text class="col-grade">年级</text>
-        <text class="col-phone">联系方式</text>
+        <text class="col-class">班型</text>
+        <text class="col-head">班主任</text>
         <text class="col-weak">薄弱知识点</text>
         <text class="col-action">操作</text>
       </view>
@@ -38,7 +39,8 @@
       <view wx:for="{{students}}" wx:key="id" class="table-row row">
         <view class="col-name">{{item.name}}</view>
         <view class="col-grade"><text class="grade-pill">{{item.grade}}</text></view>
-        <view class="col-phone">{{item.phone || '未填写'}}</view>
+        <view class="col-class"><text class="class-pill">{{item.classType || '1v1'}}</text></view>
+        <view class="col-head">{{item.homeroomTeacher || '-'}}</view>
         <view class="col-weak">
           <view wx:if="{{item.weakTags.length}}" class="weak-tags">
             <text wx:for="{{item.weakTags}}" wx:key="*this" class="weak-pill">{{item}}</text>
@@ -63,25 +65,67 @@
     </view>
 
     <view class="form-block mt-12">
-      <view class="field">
-        <view class="field-label">姓名</view>
-        <input class="input" placeholder="学生姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
-      </view>
-      <view class="field">
-        <view class="field-label">年级</view>
-        <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
-          <view class="picker">{{currentGrade}}</view>
-        </picker>
-      </view>
       <view class="row-2col">
         <view class="field" style="flex:1;">
-          <view class="field-label">手机号</view>
+          <view class="field-label">姓名</view>
+          <input class="input" placeholder="学生姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">年级</view>
+          <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
+            <view class="picker">{{currentGrade}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">班型</view>
+          <picker mode="selector" range="{{classTypes}}" value="{{classTypeIndex}}" bindchange="onClassTypeChange">
+            <view class="picker">{{currentClassType}}</view>
+          </picker>
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">班主任</view>
+          <input class="input" placeholder="班主任姓名" data-key="homeroomTeacher" value="{{form.homeroomTeacher}}" bindinput="onFormInput" />
+        </view>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">学生电话</view>
           <input class="input" placeholder="选填" data-key="phone" value="{{form.phone}}" bindinput="onFormInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">家长电话</view>
+          <input class="input" placeholder="选填" data-key="parentPhone" value="{{form.parentPhone}}" bindinput="onFormInput" />
+        </view>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">邮箱</view>
+          <input class="input" placeholder="选填" data-key="email" value="{{form.email}}" bindinput="onFormInput" />
         </view>
         <view class="field" style="flex:1;">
           <view class="field-label">家长称呼</view>
           <input class="input" placeholder="选填" data-key="guardian" value="{{form.guardian}}" bindinput="onFormInput" />
         </view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">地址</view>
+        <input class="input" placeholder="选填" data-key="address" value="{{form.address}}" bindinput="onFormInput" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">薄弱知识点（逗号分隔）</view>
+        <input class="input" placeholder="如：函数单调性,三角函数" data-key="weakTopicsText" value="{{form.weakTopicsText}}" bindinput="onFormInput" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">备注</view>
+        <textarea class="textarea textarea-md" placeholder="备注信息" data-key="notes" value="{{form.notes}}" bindinput="onFormInput" />
       </view>
     </view>
     <view class="btn-primary" bindtap="saveStudent">{{isEditMode ? '保存修改' : '保存学生'}}</view>
@@ -89,8 +133,8 @@
 
   <view class="card" wx:if="{{showCreatePanel && canManage}}">
     <view class="section-title">批量导入</view>
-    <view class="sub">每行格式：姓名,年级,手机号,家长。年级为空时默认使用当前新增年级。</view>
-    <textarea class="textarea mt-12" placeholder="张三,七年级,13800000000,张妈妈" value="{{importText}}" bindinput="onImportTextInput" />
+    <view class="sub">每行格式：姓名,年级,班型,班主任,学生电话,家长电话,家长称呼,薄弱知识点</view>
+    <textarea class="textarea mt-12" placeholder="张三,七年级,1v1,王老师,13800000000,13900000000,张妈妈,函数单调性;二次函数" value="{{importText}}" bindinput="onImportTextInput" />
     <view class="row">
       <view class="btn-ghost" bindtap="copyImportTemplate">复制模板</view>
       <view class="btn-primary" bindtap="importStudentsByCSV">执行导入</view>

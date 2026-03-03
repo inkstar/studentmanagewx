@@ -1,10 +1,10 @@
 <view class="container">
   <view class="hero">
-    <view class="hero-title">课程记录</view>
-    <view class="hero-sub">按年级查看课程记录，并为指定学生新增课程记录。</view>
+    <view class="hero-title">课程记录与反馈</view>
+    <view class="hero-sub">按年级查看课程记录，支持按学生搜索、复制记录、导出反馈图片。</view>
     <view class="chip-row">
       <view class="chip">年级 {{currentGrade}}</view>
-      <view class="chip">记录 {{lessons.length}}</view>
+      <view class="chip">记录 {{filteredLessons.length}}</view>
     </view>
   </view>
 
@@ -16,36 +16,46 @@
   <view class="card" wx:if="{{!showCreatePanel}}">
     <view class="row">
       <view class="section-title" style="margin-bottom:0;">课程记录列表</view>
-      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">新增课程记录</view>
-    </view>
-    <view class="mt-12">
-      <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
-        <view class="picker">当前年级：{{currentGrade}}</view>
-      </picker>
+      <view class="row">
+        <view class="btn-ghost action-btn" bindtap="exportLessons">导出Excel</view>
+        <view class="btn-primary action-btn" bindtap="startCreate">新增课程记录</view>
+      </view>
     </view>
 
-    <view wx:if="{{!lessons.length}}" class="sub mt-12">暂无课程记录</view>
-    <view wx:for="{{lessons}}" wx:key="id" class="list-item">
+    <view class="table-filters mt-12">
+      <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
+        <view class="picker filter-picker">{{currentGrade}}</view>
+      </picker>
+      <input class="input" placeholder="按学生/老师/内容搜索" value="{{lessonKeyword}}" bindinput="onLessonKeywordInput" />
+    </view>
+
+    <view wx:if="{{!filteredLessons.length}}" class="sub mt-12">暂无课程记录</view>
+
+    <view wx:for="{{filteredLessons}}" wx:key="id" class="list-item lesson-item">
       <view class="row">
-        <text>{{item.lessonDate}} · {{item.subject}}</text>
+        <view class="lesson-title">{{item.studentName || '未命名学生'}} · {{item.subject}}</view>
         <text class="badge">{{item.status}}</text>
       </view>
-      <view class="sub mt-8">年级 {{item.grade}} · 学生 {{item.studentName || '未填'}} · 教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟</view>
-      <view class="sub">内容：{{item.content || '未填写'}}</view>
-      <view class="sub">作业：{{item.homework || '未填写'}}</view>
-    </view>
-  </view>
+      <view class="sub mt-8">{{item.lessonDate}} {{item.timeRange}} · {{item.teacher || '未填教师'}} · {{item.duration}} 分钟</view>
+      <view class="sub">课程内容：{{item.contentSummary || '未填写'}}</view>
 
-  <view class="card" wx:else>
-    <view class="row">
-      <view class="section-title" style="margin-bottom:0;">新增课程记录</view>
-      <view class="btn-ghost" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">返回列表</view>
+      <view class="op-row mt-12">
+        <view class="op-btn op-view" bindtap="viewLesson" data-id="{{item.id}}">看</view>
+        <view class="op-btn op-edit" bindtap="startEdit" data-id="{{item.id}}">改</view>
+        <view class="op-btn op-copy" bindtap="copyLesson" data-id="{{item.id}}">复</view>
+        <view class="op-btn op-img" bindtap="exportLessonImage" data-id="{{item.id}}">图</view>
+        <view class="op-btn op-del" bindtap="deleteLesson" data-id="{{item.id}}">删</view>
+      </view>
     </view>
   </view>
 
   <view class="card" wx:if="{{showCreatePanel}}">
-    <view class="section-title">课程信息</view>
-    <view class="form-block">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">{{isEditMode ? '编辑课程记录' : '新增课程记录'}}</view>
+      <view class="btn-ghost action-btn" bindtap="toggleCreatePanel">返回列表</view>
+    </view>
+
+    <view class="form-block mt-12">
       <view class="row-2col">
         <view class="field" style="flex:1;">
           <view class="field-label">年级</view>
@@ -61,60 +71,111 @@
         </view>
       </view>
 
-      <view class="field">
-        <view class="field-label">上课日期</view>
-        <input class="input" placeholder="如 2026-03-03" value="{{lessonDate}}" bindinput="onDateInput" />
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">上课日期</view>
+          <input class="input" placeholder="如 2026-03-04" value="{{lessonDate}}" bindinput="onDateInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">科目</view>
+          <input class="input" placeholder="默认数学" value="{{subject}}" bindinput="onSubjectInput" />
+        </view>
       </view>
 
       <view class="row-2col">
         <view class="field" style="flex:1;">
-          <view class="field-label">科目</view>
-          <input class="input" placeholder="如 数学" value="{{subject}}" bindinput="onSubjectInput" />
+          <view class="field-label">开始时间</view>
+          <input class="input" placeholder="19:00" value="{{startTime}}" bindinput="onStartTimeInput" />
         </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">结束时间</view>
+          <input class="input" placeholder="21:00" value="{{endTime}}" bindinput="onEndTimeInput" />
+        </view>
+      </view>
+
+      <view class="row-2col">
         <view class="field" style="flex:1;">
           <view class="field-label">授课老师</view>
           <input class="input" placeholder="老师姓名" value="{{teacher}}" bindinput="onTeacherInput" />
         </view>
-      </view>
-
-      <view class="row-2col">
         <view class="field" style="flex:1;">
           <view class="field-label">时长（分钟）</view>
           <input class="input" type="number" placeholder="120" value="{{duration}}" bindinput="onDurationInput" />
         </view>
+      </view>
+
+      <view class="row-2col">
         <view class="field" style="flex:1;">
           <view class="field-label">课程状态</view>
           <picker mode="selector" range="{{lessonStatusOptions}}" value="{{lessonStatusIndex}}" bindchange="onStatusChange">
             <view class="picker">{{lessonStatusOptions[lessonStatusIndex]}}</view>
           </picker>
         </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">出勤状态</view>
+          <picker mode="selector" range="{{attendanceOptions}}" value="{{attendanceIndex}}" bindchange="onAttendanceChange">
+            <view class="picker">{{attendance}}</view>
+          </picker>
+        </view>
       </view>
 
       <view class="field">
-        <view class="field-label">出勤状态</view>
-        <picker mode="selector" range="{{attendanceOptions}}" value="{{attendanceIndex}}" bindchange="onAttendanceChange">
-          <view class="picker">{{attendance}}</view>
-        </picker>
+        <view class="field-label">课程内容（支持 Markdown）</view>
+        <textarea class="textarea textarea-xl editor-area" placeholder="记录教学内容、重点难点、授课方法..." value="{{content}}" bindinput="onContentInput" />
       </view>
 
       <view class="field">
-        <view class="field-label">课程内容</view>
-        <textarea class="textarea textarea-lg" placeholder="本节课重点内容（可记录知识点、授课过程、学生反馈）" value="{{content}}" bindinput="onContentInput" />
+        <view class="field-label">学生情况（支持 Markdown）</view>
+        <textarea class="textarea textarea-xl editor-area" placeholder="记录课堂表现、掌握情况、问题点..." value="{{studentPerformance}}" bindinput="onPerformanceInput" />
       </view>
 
       <view class="field">
-        <view class="field-label">课后作业</view>
-        <textarea class="textarea textarea-lg" placeholder="课后练习与作业安排（可分条记录）" value="{{homework}}" bindinput="onHomeworkInput" />
+        <view class="field-label">课后作业（支持 Markdown）</view>
+        <textarea class="textarea textarea-xl editor-area" placeholder="记录作业内容、完成要求、截止时间..." value="{{homework}}" bindinput="onHomeworkInput" />
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">知识点</view>
+          <input class="input" placeholder="如 导数与单调性" value="{{topic}}" bindinput="onTopicInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">本节学习知识点</view>
+          <input class="input" placeholder="如 极值判定" value="{{learnedTopics}}" bindinput="onLearnedTopicsInput" />
+        </view>
       </view>
 
       <view class="field">
-        <view class="field-label">课堂评语</view>
-        <textarea class="textarea textarea-md" placeholder="课堂评语（选填）" value="{{comment}}" bindinput="onCommentInput" />
+        <view class="field-label">薄弱知识点（标签，逗号分隔）</view>
+        <input class="input" placeholder="如 三角函数,数列" value="{{weakTopicsText}}" bindinput="onWeakTopicsInput" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">备注</view>
+        <textarea class="textarea textarea-md" placeholder="其他补充说明" value="{{notes}}" bindinput="onNotesInput" />
+      </view>
+    </view>
+
+    <view class="card preview-card mt-12">
+      <view class="section-title">Markdown 预览</view>
+      <view class="preview-block">
+        <view class="preview-title">课程内容</view>
+        <view class="preview-text">{{content || '（空）'}}</view>
+      </view>
+      <view class="preview-block">
+        <view class="preview-title">学生情况</view>
+        <view class="preview-text">{{studentPerformance || '（空）'}}</view>
+      </view>
+      <view class="preview-block">
+        <view class="preview-title">课后作业</view>
+        <view class="preview-text">{{homework || '（空）'}}</view>
       </view>
     </view>
   </view>
 
   <view class="action-bar" wx:if="{{showCreatePanel}}">
-    <view class="btn-primary" bindtap="saveLesson">保存课程记录</view>
+    <view class="btn-primary" bindtap="saveLesson">{{isEditMode ? '保存修改' : '保存课程记录'}}</view>
   </view>
+
+  <canvas canvas-id="lessonShareCanvas" class="share-canvas" style="width:720px;height:1080px;"></canvas>
 </view>
