@@ -697,9 +697,9 @@ Page({
     const pageY = 22;
     const pageW = width - pageX * 2;
     const pageH = height - pageY * 2;
-    const headerH = 188;
+    const headerH = 166;
     const contentX = pageX + 24;
-    const contentY = pageY + headerH - 24;
+    const contentY = pageY + headerH - 22;
     const contentW = pageW - 48;
     const teacherText = String(lesson.teacher || lesson.teacherName || lesson.instructor || "").trim() || "未填写";
     const contentText = String(lesson.content || lesson.topic || lesson.learnedTopics || "").trim();
@@ -739,20 +739,19 @@ Page({
         const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
         headGrad.addColorStop(0, "#ff8a4a");
         headGrad.addColorStop(1, "#ff7a38");
-        drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 30, headGrad, null, 0);
-        drawRoundedBlock(ctx, pageX, pageY + headerH - 30, pageW, 38, 0, "#ff7a38", null, 0);
+        drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 28, headGrad, null, 0);
 
         applyFillStyle(ctx, "#ffffff");
-        applyFontSize(ctx, 46, 700);
-        ctx.fillText("课程记录与反馈", pageX + 32, pageY + 84);
-        applyFontSize(ctx, 28, 400);
+        applyFontSize(ctx, 56, 700);
+        ctx.fillText("课程记录与反馈", pageX + 28, pageY + 76);
+        applyFontSize(ctx, 42, 400);
         applyFillStyle(ctx, "rgba(255,255,255,0.92)");
-        ctx.fillText("Lesson Record & Feedback", pageX + 32, pageY + 126);
+        ctx.fillText("Lesson Record & Feedback", pageX + 28, pageY + 118);
 
         const infoTop = contentY;
-        const boxGap = 12;
+        const boxGap = 14;
         const boxW = (contentW - boxGap) / 2;
-        const boxH = 106;
+        const boxH = 96;
 
         infoRows.forEach((row, idx) => {
           const col = idx % 2;
@@ -760,18 +759,17 @@ Page({
           const x = contentX + col * (boxW + boxGap);
           const y = infoTop + r * (boxH + boxGap);
           drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#ffffff", "#f1f5f9", 1);
-          applyFillStyle(ctx, "#ff7a38");
-          drawRoundedBlock(ctx, x, y + 14, 8, boxH - 28, 2, "#ff7a38", null, 0);
+          drawRoundedBlock(ctx, x, y + 16, 6, boxH - 32, 3, "#ff7a38", null, 0);
           applyFillStyle(ctx, "#9ca3af");
-          applyFontSize(ctx, 19, 400);
-          ctx.fillText(row[0], x + 18, y + 32);
+          applyFontSize(ctx, 20, 400);
+          ctx.fillText(row[0], x + 16, y + 30);
           applyFillStyle(ctx, "#1f2937");
-          applyFontSize(ctx, 26, 700);
+          applyFontSize(ctx, 24, 700);
           drawParagraph(ctx, {
             text: row[1],
-            x: x + 18,
-            y: y + 70,
-            maxWidth: boxW - 30,
+            x: x + 16,
+            y: y + 66,
+            maxWidth: boxW - 26,
             lineHeight: 30,
             maxLines: 1
           });
@@ -783,14 +781,17 @@ Page({
           const isEmpty = !plainText;
 
           applyFillStyle(ctx, "#ff7a38");
-          applyFontSize(ctx, 30, 700);
+          applyFontSize(ctx, 34, 700);
           ctx.fillText("|", contentX, y + 24);
           applyFillStyle(ctx, "#ff7a38");
-          applyFontSize(ctx, 31, 700);
-          ctx.fillText(title, contentX + 22, y + 24);
+          applyFontSize(ctx, 30, 700);
+          ctx.fillText(title, contentX + 20, y + 24);
 
           const boxY = y + 38;
-          const boxHLocal = isEmpty ? 120 : 166;
+          applyFontSize(ctx, 22, 400);
+          const lines = wrapTextLines(ctx, safeText, contentW - 32);
+          const wantedLines = Math.min(lineCap || 8, Math.max(2, lines.length));
+          const boxHLocal = isEmpty ? 110 : Math.min(230, 44 + wantedLines * 30);
           drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
 
           applyFillStyle(ctx, "#4b5563");
@@ -801,15 +802,15 @@ Page({
             y: boxY + 32,
             maxWidth: contentW - 32,
             lineHeight: 30,
-            maxLines: isEmpty ? 2 : lineCap
+            maxLines: isEmpty ? 2 : wantedLines
           });
           return boxY + boxHLocal + 20;
         };
 
-        let cursorY = infoTop + 3 * (boxH + boxGap) + 24;
-        cursorY = drawSection(cursorY, "课程内容", contentText, 4);
-        cursorY = drawSection(cursorY, "学生情况", performanceText, 4);
-        cursorY = drawSection(cursorY, "课后作业", homeworkText, 4);
+        let cursorY = infoTop + 3 * (boxH + boxGap) + 22;
+        cursorY = drawSection(cursorY, "课程内容", contentText, 6);
+        cursorY = drawSection(cursorY, "学生情况", performanceText, 5);
+        cursorY = drawSection(cursorY, "课后作业", homeworkText, 6);
 
         const footerH = 84;
         const footerY = pageY + pageH - footerH;
