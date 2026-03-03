@@ -110,10 +110,12 @@ Page({
 
     const lines = text.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
     const items = [];
+    let ignored = 0;
 
     lines.forEach((line) => {
       const cols = line.split(",").map((x) => x.trim());
       if (!cols.length || !cols[0]) {
+        ignored += 1;
         return;
       }
       const classId = classByName[cols[1]] || classes[this.data.classIndex].id;
@@ -129,9 +131,23 @@ Page({
     this.setData({ importText: "" });
     this.refresh();
 
-    wx.showToast({
-      title: "导入 " + created.length + " 条",
-      icon: "success"
+    wx.showModal({
+      title: "导入完成",
+      content: "成功 " + created.length + " 条，忽略 " + ignored + " 条。",
+      showCancel: false
+    });
+  },
+
+  copyImportTemplate() {
+    const sample = [
+      "张三,高一-1v1-张老师,13800000000,张妈妈",
+      "李四,高一-1v3-李老师,13900000000,李爸爸"
+    ].join("\n");
+    wx.setClipboardData({
+      data: sample,
+      success: () => {
+        wx.showToast({ title: "模板已复制", icon: "success" });
+      }
     });
   },
 

@@ -19,7 +19,10 @@
     <view class="title">批量导入（CSV 粘贴）</view>
     <view class="sub">每行格式：姓名,班级名,手机号,家长。班级名为空或不匹配时使用当前选择班级。</view>
     <textarea class="textarea mt-12" placeholder="示例：&#10;张三,高一-1v1-张老师,13800000000,张妈妈&#10;李四,高一-1v3-李老师,13900000000,李爸爸" value="{{importText}}" bindinput="onImportTextInput" />
-    <view class="btn-ghost" bindtap="importStudentsByCSV">执行批量导入</view>
+    <view class="row">
+      <view class="btn-ghost" bindtap="copyImportTemplate">复制模板</view>
+      <view class="btn-ghost" bindtap="importStudentsByCSV">执行批量导入</view>
+    </view>
   </view>
 
   <view class="card" wx:else>
