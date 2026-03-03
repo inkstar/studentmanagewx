@@ -9,14 +9,14 @@
   ],
   "window": {
     "navigationBarTitleText": "学生课程管理",
-    "navigationBarBackgroundColor": "#102a56",
+    "navigationBarBackgroundColor": "#4f46e5",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f7fb",
+    "backgroundColor": "#f8fafc",
     "backgroundTextStyle": "light"
   },
   "tabBar": {
     "color": "#6b7280",
-    "selectedColor": "#0ea5e9",
+    "selectedColor": "#6366f1",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [

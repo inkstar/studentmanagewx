@@ -22,3 +22,6 @@ project.private.config.json
 
 # Local business db
 student_info.db
+
+# Local references (never push)
+00/

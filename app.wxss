@@ -1,10 +1,10 @@
 page {
   background:
-    radial-gradient(circle at 15% -10%, #d8ecff 0, #eef5ff 35%, #f5f7fb 70%),
-    #f5f7fb;
-  color: #152238;
+    radial-gradient(circle at 10% -20%, #e7eaff 0%, #f5f7ff 36%, #f8fafc 72%),
+    #f8fafc;
+  color: #111827;
   font-size: 28rpx;
-  font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: "SF Pro Display", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
 .container {
@@ -13,11 +13,11 @@ page {
 }
 
 .hero {
-  background: linear-gradient(135deg, #0f2a56 0%, #1d4f91 70%, #2e7ec8 100%);
-  border-radius: 24rpx;
-  padding: 26rpx;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 58%, #8b5cf6 100%);
+  border-radius: 26rpx;
+  padding: 28rpx;
   margin-bottom: 22rpx;
-  box-shadow: 0 16rpx 34rpx rgba(15, 42, 86, 0.28);
+  box-shadow: 0 16rpx 38rpx rgba(99, 102, 241, 0.32);
 }
 
 .hero-title {
@@ -28,7 +28,7 @@ page {
 
 .hero-sub {
   margin-top: 8rpx;
-  color: rgba(248, 251, 255, 0.88);
+  color: rgba(248, 251, 255, 0.94);
   line-height: 1.6;
   font-size: 24rpx;
 }
@@ -42,27 +42,28 @@ page {
 
 .chip {
   border-radius: 999rpx;
-  padding: 6rpx 14rpx;
+  padding: 8rpx 16rpx;
   font-size: 22rpx;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.24);
   color: #eff7ff;
+  border: 1rpx solid rgba(255, 255, 255, 0.34);
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1rpx solid rgba(182, 206, 236, 0.6);
-  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid rgba(208, 216, 240, 0.78);
+  border-radius: 20rpx;
   padding: 22rpx;
   margin-bottom: 18rpx;
-  box-shadow: 0 10rpx 24rpx rgba(39, 78, 120, 0.08);
+  box-shadow: 0 12rpx 28rpx rgba(99, 102, 241, 0.08);
   backdrop-filter: blur(4rpx);
 }
 
 .form-block {
-  background: #f8fbff;
-  border: 1rpx solid #d3e2f4;
-  border-radius: 14rpx;
-  padding: 14rpx;
+  background: #f9fbff;
+  border: 1rpx solid #dde5fb;
+  border-radius: 16rpx;
+  padding: 16rpx;
   margin-top: 10rpx;
 }
 
@@ -72,8 +73,9 @@ page {
 
 .field-label {
   font-size: 24rpx;
-  color: #345375;
+  color: #4b5563;
   margin-bottom: 8rpx;
+  font-weight: 600;
 }
 
 .title {
@@ -84,16 +86,16 @@ page {
 }
 
 .sub {
-  color: #4d6079;
+  color: #64748b;
   line-height: 1.65;
   font-size: 24rpx;
 }
 
 .section-title {
   margin-bottom: 12rpx;
-  font-size: 26rpx;
-  color: #1e3f6f;
-  font-weight: 600;
+  font-size: 28rpx;
+  color: #1f2937;
+  font-weight: 700;
 }
 
 .grid {
@@ -103,28 +105,28 @@ page {
 }
 
 .stat {
-  background: linear-gradient(145deg, #f7fbff 0%, #e9f2ff 100%);
-  border: 1rpx solid #c9ddf6;
-  border-radius: 14rpx;
+  background: linear-gradient(145deg, #f6f7ff 0%, #eef2ff 100%);
+  border: 1rpx solid #d6ddfb;
+  border-radius: 16rpx;
   padding: 16rpx;
 }
 
 .stat-num {
   margin-top: 8rpx;
   font-size: 44rpx;
-  color: #0e5ea8;
+  color: #4f46e5;
   font-weight: 700;
 }
 
 .input,
 .textarea,
 .picker {
-  border: 1rpx solid #c9d9ef;
-  border-radius: 12rpx;
+  border: 1rpx solid #d6dcf5;
+  border-radius: 14rpx;
   padding: 14rpx 16rpx;
   margin-bottom: 12rpx;
-  background: #fdfefe;
-  color: #10223b;
+  background: #ffffff;
+  color: #1f2937;
   box-sizing: border-box;
   font-size: 28rpx;
 }
@@ -153,27 +155,27 @@ page {
 .btn-primary,
 .btn-ghost,
 .btn-danger {
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   padding: 14rpx 16rpx;
   text-align: center;
   font-size: 26rpx;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #0d7dd9 0%, #0d64bd 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #fff;
-  box-shadow: 0 8rpx 20rpx rgba(13, 100, 189, 0.26);
+  box-shadow: 0 10rpx 24rpx rgba(79, 70, 229, 0.28);
 }
 
 .btn-ghost {
-  background: #edf3fb;
-  color: #1f3e66;
-  border: 1rpx solid #c7d8ee;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1rpx solid #cfd6fb;
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #d94b4b 0%, #b23333 100%);
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
   color: #fff;
 }
 
@@ -214,18 +216,18 @@ page {
 }
 
 .list-item {
-  border: 1rpx solid #d7e4f5;
-  border-radius: 14rpx;
+  border: 1rpx solid #dde3f8;
+  border-radius: 16rpx;
   padding: 14rpx;
   margin-top: 12rpx;
-  background: #fbfdff;
+  background: #fcfdff;
 }
 
 .badge {
-  background: #deedff;
-  color: #16457a;
+  background: #eef2ff;
+  color: #4338ca;
   border-radius: 999rpx;
-  padding: 4rpx 12rpx;
+  padding: 6rpx 14rpx;
   font-size: 22rpx;
   font-weight: 600;
 }
@@ -238,14 +240,14 @@ page {
 }
 
 .kv-key {
-  color: #5a6f8e;
+  color: #6b7280;
   font-size: 24rpx;
 }
 
 .kv-value {
-  color: #143055;
+  color: #312e81;
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .mt-8 {

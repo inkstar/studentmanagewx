@@ -21,24 +21,26 @@
 
 .table-wrap {
   margin-top: 14rpx;
-  border: 1rpx solid #d8e3f2;
-  border-radius: 14rpx;
+  border: 1rpx solid #d8def9;
+  border-radius: 18rpx;
   overflow: hidden;
   background: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(79, 70, 229, 0.08);
 }
 
 .table-head {
-  background: #1f2833;
+  background: linear-gradient(90deg, #1f2937 0%, #111827 100%);
   color: #fff;
-  padding: 14rpx 12rpx;
-  font-weight: 600;
+  padding: 16rpx 14rpx;
+  font-weight: 700;
 }
 
 .table-row {
   align-items: flex-start;
-  padding: 14rpx 12rpx;
-  border-top: 1rpx solid #edf2f9;
+  padding: 16rpx 14rpx;
+  border-top: 1rpx solid #eef2ff;
   font-size: 24rpx;
+  background: #ffffff;
 }
 
 .col-name {
@@ -69,20 +71,22 @@
 
 .grade-pill {
   display: inline-block;
-  border-radius: 8rpx;
-  padding: 4rpx 10rpx;
-  background: #1f7ae0;
+  border-radius: 10rpx;
+  padding: 6rpx 12rpx;
+  background: #2563eb;
   color: #fff;
   font-size: 22rpx;
+  font-weight: 700;
 }
 
 .class-pill {
   display: inline-block;
-  border-radius: 8rpx;
-  padding: 4rpx 10rpx;
-  background: #1f9d55;
+  border-radius: 10rpx;
+  padding: 6rpx 12rpx;
+  background: #16a34a;
   color: #fff;
   font-size: 22rpx;
+  font-weight: 700;
 }
 
 .weak-tags {
@@ -93,11 +97,12 @@
 
 .weak-pill {
   display: inline-block;
-  border-radius: 8rpx;
-  padding: 3rpx 8rpx;
-  background: #ffd04a;
-  color: #1f2833;
+  border-radius: 10rpx;
+  padding: 4rpx 10rpx;
+  background: #facc15;
+  color: #111827;
   font-size: 20rpx;
+  font-weight: 600;
 }
 
 .op-row {
@@ -107,13 +112,15 @@
 }
 
 .op-btn {
-  width: 44rpx;
-  height: 44rpx;
-  line-height: 44rpx;
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
   text-align: center;
-  border-radius: 8rpx;
+  border-radius: 10rpx;
   border: 1rpx solid;
   font-size: 22rpx;
+  font-weight: 700;
+  background: #fff;
 }
 
 .op-view {
