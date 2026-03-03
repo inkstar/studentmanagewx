@@ -5,6 +5,7 @@ try {
   console.warn("load sqlite seed failed, fallback to default seed", err);
 }
 const KEY = "student_manage_db_v2";
+const GRADE_OPTIONS = ["六年级", "七年级", "八年级", "九年级", "高一", "高二", "高三"];
 
 function createSeedData() {
   if (DBSeedFromSQLite && Array.isArray(DBSeedFromSQLite.students) && DBSeedFromSQLite.students.length) {
@@ -31,6 +32,29 @@ function normalizeDB(data) {
   normalized.exams = Array.isArray(normalized.exams) ? normalized.exams : [];
   normalized.weaknessLogs = Array.isArray(normalized.weaknessLogs) ? normalized.weaknessLogs : [];
   return normalized;
+}
+
+function inferGradeFromStudent(student, classMap) {
+  if (student && student.grade && GRADE_OPTIONS.indexOf(student.grade) >= 0) {
+    return student.grade;
+  }
+  const className = classMap[(student || {}).classId] || "";
+  const found = GRADE_OPTIONS.find((g) => className.indexOf(g) >= 0);
+  return found || "高一";
+}
+
+function ensureClassForGrade(db, grade) {
+  const targetGrade = GRADE_OPTIONS.indexOf(grade) >= 0 ? grade : "高一";
+  const existing = db.classes.find((c) => String(c.name || "").indexOf(targetGrade) >= 0);
+  if (existing) {
+    return existing.id;
+  }
+  const classId = "grade_" + targetGrade;
+  db.classes.unshift({
+    id: classId,
+    name: targetGrade
+  });
+  return classId;
 }
 
 function uid(prefix) {
@@ -70,15 +94,28 @@ function getClasses() {
   return readDB().classes;
 }
 
+function getGradeOptions() {
+  return GRADE_OPTIONS.slice();
+}
+
 function getTags() {
   return readDB().tags;
 }
 
-function getStudents(keyword) {
+function getStudents(query) {
   const db = readDB();
   const classMap = {};
   const lessonCountMap = {};
   const examCountMap = {};
+  let keyword = "";
+  let gradeFilter = "";
+
+  if (typeof query === "string") {
+    keyword = query;
+  } else if (query && typeof query === "object") {
+    keyword = query.keyword || "";
+    gradeFilter = query.grade || "";
+  }
 
   db.lessons.forEach((l) => {
     (l.records || []).forEach((r) => {
@@ -96,6 +133,7 @@ function getStudents(keyword) {
   const list = db.students.map((s) => ({
     id: s.id,
     name: s.name,
+    grade: inferGradeFromStudent(s, classMap),
     classId: s.classId,
     className: classMap[s.classId] || "未分班",
     phone: s.phone,
@@ -104,15 +142,16 @@ function getStudents(keyword) {
     examCount: examCountMap[s.id] || 0
   }));
   const q = (keyword || "").trim();
-  if (!q) {
-    return list;
-  }
-  return list.filter(
-    (s) =>
+  const g = (gradeFilter || "").trim();
+  return list.filter((s) => {
+    const hitKeyword =
+      !q ||
       String(s.name || "").indexOf(q) >= 0 ||
       String(s.className || "").indexOf(q) >= 0 ||
-      String(s.phone || "").indexOf(q) >= 0
-  );
+      String(s.phone || "").indexOf(q) >= 0;
+    const hitGrade = !g || String(s.grade || "") === g;
+    return hitKeyword && hitGrade;
+  });
 }
 
 function getStudentById(studentId) {
@@ -122,10 +161,13 @@ function getStudentById(studentId) {
 
 function addStudent(payload) {
   const db = readDB();
+  const grade = payload.grade && GRADE_OPTIONS.indexOf(payload.grade) >= 0 ? payload.grade : "高一";
+  const classId = payload.classId || ensureClassForGrade(db, grade);
   const item = {
     id: uid("stu"),
     name: payload.name,
-    classId: payload.classId,
+    grade,
+    classId,
     phone: payload.phone || "",
     guardian: payload.guardian || ""
   };
@@ -137,21 +179,19 @@ function addStudent(payload) {
 function addStudentsBatch(items) {
   const db = readDB();
   const created = [];
-  const classIds = new Set(db.classes.map((c) => c.id));
-  const defaultClassId = db.classes.length ? db.classes[0].id : "";
+  const defaultGrade = "高一";
 
   (items || []).forEach((item) => {
     const name = String(item.name || "").trim();
     if (!name) {
       return;
     }
-    const classId = classIds.has(item.classId) ? item.classId : defaultClassId;
-    if (!classId) {
-      return;
-    }
+    const grade = GRADE_OPTIONS.indexOf(item.grade) >= 0 ? item.grade : defaultGrade;
+    const classId = item.classId || ensureClassForGrade(db, grade);
     const student = {
       id: uid("stu"),
       name,
+      grade,
       classId,
       phone: String(item.phone || "").trim(),
       guardian: String(item.guardian || "").trim()
@@ -188,6 +228,7 @@ function getLessons(options) {
   const db = readDB();
   const opts = options || {};
   const classId = opts.classId || "";
+  const grade = opts.grade || "";
   const limit = Number(opts.limit || 50);
 
   const classMap = {};
@@ -195,14 +236,39 @@ function getLessons(options) {
     classMap[c.id] = c.name;
   });
 
+  const studentMap = {};
+  db.students.forEach((s) => {
+    studentMap[s.id] = {
+      name: s.name,
+      grade: inferGradeFromStudent(s, classMap)
+    };
+  });
+
   const list = db.lessons
-    .filter((l) => (!classId ? true : l.classId === classId))
+    .filter((l) => {
+      const classHit = !classId ? true : l.classId === classId;
+      if (!classHit) {
+        return false;
+      }
+      if (!grade) {
+        return true;
+      }
+      const sid = l.records && l.records[0] ? l.records[0].studentId : "";
+      const studentGrade = sid && studentMap[sid] ? studentMap[sid].grade : "";
+      return studentGrade === grade;
+    })
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .slice(0, limit)
     .map((l) => ({
       id: l.id,
       classId: l.classId,
       className: classMap[l.classId] || "未分班",
+      grade:
+        (l.records && l.records[0] && studentMap[l.records[0].studentId] && studentMap[l.records[0].studentId].grade) ||
+        "高一",
+      studentName:
+        (l.records && l.records[0] && studentMap[l.records[0].studentId] && studentMap[l.records[0].studentId].name) ||
+        "",
       lessonDate: l.lessonDate,
       subject: l.subject || "数学",
       teacher: l.teacher || "",
@@ -218,6 +284,12 @@ function getLessons(options) {
 
 function getLessonsByStudent(studentId) {
   const db = readDB();
+  const classMap = {};
+  db.classes.forEach((c) => {
+    classMap[c.id] = c.name;
+  });
+  const target = db.students.find((s) => s.id === studentId);
+  const targetGrade = inferGradeFromStudent(target, classMap);
   const list = [];
   db.lessons.forEach((l) => {
     const found = l.records.find((r) => r.studentId === studentId);
@@ -225,6 +297,7 @@ function getLessonsByStudent(studentId) {
       list.push({
         lessonId: l.id,
         lessonDate: l.lessonDate,
+        grade: targetGrade,
         subject: l.subject || "数学",
         teacher: l.teacher || "",
         duration: l.duration || 120,
@@ -436,6 +509,7 @@ function getLatestLessonSummary() {
 
 module.exports = {
   getClasses,
+  getGradeOptions,
   getTags,
   getStudents,
   getStudentById,

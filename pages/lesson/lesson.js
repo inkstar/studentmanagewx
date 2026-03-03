@@ -13,9 +13,12 @@ function today() {
 Page({
   data: {
     fatalError: "",
-    classes: [],
-    classIndex: 0,
-    currentClassName: "暂无班级",
+    grades: [],
+    gradeIndex: 0,
+    currentGrade: "高一",
+    students: [],
+    studentIndex: 0,
+    currentStudentName: "暂无学生",
     lessons: [],
     showCreatePanel: false,
     lessonDate: today(),
@@ -24,24 +27,27 @@ Page({
     duration: "120",
     lessonStatusOptions: LESSON_STATUS,
     lessonStatusIndex: 0,
-    content: "",
-    homework: "",
-    students: [],
     attendanceOptions: ATTENDANCE_OPTIONS,
-    records: []
+    attendanceIndex: 0,
+    attendance: "出勤",
+    comment: "",
+    content: "",
+    homework: ""
   },
 
   onShow() {
     try {
-      const classes = repo.getClasses();
-      const classIndex = classes.length ? Math.min(this.data.classIndex, classes.length - 1) : 0;
+      const grades = repo.getGradeOptions();
+      const gradeIndex = grades.length ? Math.min(this.data.gradeIndex, grades.length - 1) : 0;
+      const currentGrade = grades[gradeIndex] || "高一";
+
       this.setData({
         fatalError: "",
-        classes,
-        classIndex,
-        currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
+        grades,
+        gradeIndex,
+        currentGrade
       });
-      this.loadStudentsByClass();
+      this.loadStudentsByGrade();
       this.loadLessons();
     } catch (err) {
       console.error("lesson onShow failed", err);
@@ -52,52 +58,59 @@ Page({
   },
 
   loadLessons() {
-    const classes = this.data.classes;
-    const classId = classes.length ? classes[this.data.classIndex].id : "";
     this.setData({
-      lessons: repo.getLessons({ classId, limit: 50 })
+      lessons: repo.getLessons({ grade: this.data.currentGrade, limit: 50 })
     });
   },
 
-  loadStudentsByClass() {
-    const classes = this.data.classes;
-    if (!classes.length) {
-      this.setData({ students: [], records: [] });
-      return;
-    }
-
-    const classId = classes[this.data.classIndex].id;
-    const students = repo.getStudents("").filter((s) => s.classId === classId);
-    const records = students.map((s) => ({
-      studentId: s.id,
-      attendance: "出勤",
-      attendanceIndex: 0,
-      comment: ""
-    }));
-    this.setData({ students, records });
+  loadStudentsByGrade() {
+    const students = repo.getStudents({ keyword: "", grade: this.data.currentGrade });
+    const studentIndex = students.length ? Math.min(this.data.studentIndex, students.length - 1) : 0;
+    this.setData({
+      students,
+      studentIndex,
+      currentStudentName: students.length ? students[studentIndex].name : "暂无学生"
+    });
   },
 
   toggleCreatePanel() {
     const next = !this.data.showCreatePanel;
     this.setData({ showCreatePanel: next });
     if (next) {
-      this.loadStudentsByClass();
+      this.loadStudentsByGrade();
     }
   },
 
-  onClassChange(e) {
-    const classIndex = Number(e.detail.value);
-    const classes = this.data.classes;
+  onGradeChange(e) {
+    const gradeIndex = Number(e.detail.value);
+    const grades = this.data.grades;
     this.setData({
-      classIndex,
-      currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
+      gradeIndex,
+      currentGrade: grades[gradeIndex] || "高一"
     });
-    this.loadStudentsByClass();
+    this.loadStudentsByGrade();
     this.loadLessons();
+  },
+
+  onStudentChange(e) {
+    const studentIndex = Number(e.detail.value);
+    const students = this.data.students;
+    this.setData({
+      studentIndex,
+      currentStudentName: students.length ? students[studentIndex].name : "暂无学生"
+    });
   },
 
   onStatusChange(e) {
     this.setData({ lessonStatusIndex: Number(e.detail.value) });
+  },
+
+  onAttendanceChange(e) {
+    const attendanceIndex = Number(e.detail.value);
+    this.setData({
+      attendanceIndex,
+      attendance: ATTENDANCE_OPTIONS[attendanceIndex]
+    });
   },
 
   onDateInput(e) {
@@ -124,36 +137,20 @@ Page({
     this.setData({ duration: e.detail.value });
   },
 
-  onAttendanceChange(e) {
-    const idx = Number(e.currentTarget.dataset.index);
-    const optionIndex = Number(e.detail.value);
-    const records = this.data.records.slice();
-    records[idx].attendance = ATTENDANCE_OPTIONS[optionIndex];
-    records[idx].attendanceIndex = optionIndex;
-    this.setData({ records });
-  },
-
   onCommentInput(e) {
-    const idx = Number(e.currentTarget.dataset.index);
-    const records = this.data.records.slice();
-    records[idx].comment = e.detail.value;
-    this.setData({ records });
+    this.setData({ comment: e.detail.value });
   },
 
   saveLesson() {
-    const classes = this.data.classes;
-    if (!classes.length) {
-      wx.showToast({ title: "暂无班级数据", icon: "none" });
+    if (!this.data.students.length) {
+      wx.showToast({ title: "当前年级暂无学生", icon: "none" });
       return;
     }
 
-    if (!this.data.records.length) {
-      wx.showToast({ title: "当前班级暂无学生", icon: "none" });
-      return;
-    }
+    const student = this.data.students[this.data.studentIndex];
 
     repo.saveLesson({
-      classId: classes[this.data.classIndex].id,
+      classId: student.classId,
       lessonDate: this.data.lessonDate,
       subject: this.data.subject.trim() || "数学",
       teacher: this.data.teacher.trim(),
@@ -161,11 +158,13 @@ Page({
       status: LESSON_STATUS[this.data.lessonStatusIndex],
       content: this.data.content.trim(),
       homework: this.data.homework.trim(),
-      records: this.data.records.map((r) => ({
-        studentId: r.studentId,
-        attendance: r.attendance,
-        comment: r.comment
-      }))
+      records: [
+        {
+          studentId: student.id,
+          attendance: this.data.attendance,
+          comment: this.data.comment
+        }
+      ]
     });
 
     this.setData({
@@ -174,7 +173,10 @@ Page({
       homework: "",
       teacher: "",
       duration: "120",
-      lessonStatusIndex: 0
+      lessonStatusIndex: 0,
+      attendanceIndex: 0,
+      attendance: "出勤",
+      comment: ""
     });
 
     this.loadLessons();

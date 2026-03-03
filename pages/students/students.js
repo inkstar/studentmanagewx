@@ -1,12 +1,14 @@
-const db = require("../../utils/repository");
+const repo = require("../../utils/repository");
 
 Page({
   data: {
     keyword: "",
     students: [],
-    classes: [],
-    classIndex: 0,
-    currentClassName: "请选择班级",
+    grades: [],
+    gradeFilterOptions: ["全部"],
+    filterGradeIndex: 0,
+    gradeIndex: 0,
+    currentGrade: "高一",
     canAddStudent: true,
     importText: "",
     form: {
@@ -25,19 +27,34 @@ Page({
   },
 
   refresh() {
-    const classes = db.getClasses();
-    const students = db.getStudents(this.data.keyword);
-    const classIndex = classes.length ? Math.min(this.data.classIndex, classes.length - 1) : 0;
+    const grades = repo.getGradeOptions();
+    const gradeFilterOptions = ["全部"].concat(grades);
+    const filterGradeIndex = Math.min(this.data.filterGradeIndex, gradeFilterOptions.length - 1);
+    const gradeIndex = Math.min(this.data.gradeIndex, Math.max(0, grades.length - 1));
+    const selectedGrade = gradeFilterOptions[filterGradeIndex];
+
+    const students = repo.getStudents({
+      keyword: this.data.keyword,
+      grade: selectedGrade === "全部" ? "" : selectedGrade
+    });
+
     this.setData({
-      classes,
-      students,
-      classIndex,
-      currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
+      grades,
+      gradeFilterOptions,
+      filterGradeIndex,
+      gradeIndex,
+      currentGrade: grades[gradeIndex] || "高一",
+      students
     });
   },
 
   onKeywordInput(e) {
     this.setData({ keyword: e.detail.value });
+    this.refresh();
+  },
+
+  onFilterGradeChange(e) {
+    this.setData({ filterGradeIndex: Number(e.detail.value) });
     this.refresh();
   },
 
@@ -52,32 +69,32 @@ Page({
     this.setData({ importText: e.detail.value });
   },
 
-  onClassChange(e) {
-    const classIndex = Number(e.detail.value);
-    const classes = this.data.classes;
+  onGradeChange(e) {
+    const gradeIndex = Number(e.detail.value);
+    const grades = this.data.grades;
     this.setData({
-      classIndex,
-      currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
+      gradeIndex,
+      currentGrade: grades[gradeIndex] || "高一"
     });
   },
 
   addStudent() {
     const form = this.data.form;
-    const classes = this.data.classes;
+    const grades = this.data.grades;
 
     if (!form.name.trim()) {
       wx.showToast({ title: "请输入学生姓名", icon: "none" });
       return;
     }
 
-    if (!classes.length) {
-      wx.showToast({ title: "请先配置班级", icon: "none" });
+    if (!grades.length) {
+      wx.showToast({ title: "年级配置为空", icon: "none" });
       return;
     }
 
-    db.addStudent({
+    repo.addStudent({
       name: form.name.trim(),
-      classId: classes[this.data.classIndex].id,
+      grade: grades[this.data.gradeIndex],
       phone: form.phone.trim(),
       guardian: form.guardian.trim()
     });
@@ -97,16 +114,11 @@ Page({
       return;
     }
 
-    const classes = this.data.classes;
-    if (!classes.length) {
-      wx.showToast({ title: "暂无班级，无法导入", icon: "none" });
+    const grades = this.data.grades;
+    if (!grades.length) {
+      wx.showToast({ title: "年级配置为空", icon: "none" });
       return;
     }
-
-    const classByName = {};
-    classes.forEach((c) => {
-      classByName[c.name] = c.id;
-    });
 
     const lines = text.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
     const items = [];
@@ -118,16 +130,16 @@ Page({
         ignored += 1;
         return;
       }
-      const classId = classByName[cols[1]] || classes[this.data.classIndex].id;
+      const grade = grades.indexOf(cols[1]) >= 0 ? cols[1] : grades[this.data.gradeIndex];
       items.push({
         name: cols[0],
-        classId,
+        grade,
         phone: cols[2] || "",
         guardian: cols[3] || ""
       });
     });
 
-    const created = db.addStudentsBatch(items);
+    const created = repo.addStudentsBatch(items);
     this.setData({ importText: "" });
     this.refresh();
 
@@ -140,8 +152,8 @@ Page({
 
   copyImportTemplate() {
     const sample = [
-      "张三,高一-1v1-张老师,13800000000,张妈妈",
-      "李四,高一-1v3-李老师,13900000000,李爸爸"
+      "张三,七年级,13800000000,张妈妈",
+      "李四,高一,13900000000,李爸爸"
     ].join("\n");
     wx.setClipboardData({
       data: sample,

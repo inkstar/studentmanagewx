@@ -1,9 +1,9 @@
 <view class="container">
   <view class="hero">
     <view class="hero-title">课程记录</view>
-    <view class="hero-sub">展示课程记录列表，并支持按班级新增课程记录。</view>
+    <view class="hero-sub">按年级查看课程记录，并为指定学生新增课程记录。</view>
     <view class="chip-row">
-      <view class="chip">班级 {{currentClassName}}</view>
+      <view class="chip">年级 {{currentGrade}}</view>
       <view class="chip">记录 {{lessons.length}}</view>
     </view>
   </view>
@@ -16,11 +16,11 @@
   <view class="card" wx:if="{{!showCreatePanel}}">
     <view class="row">
       <view class="section-title" style="margin-bottom:0;">课程记录列表</view>
-      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">{{showCreatePanel ? '收起' : '新增课程记录'}}</view>
+      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">新增课程记录</view>
     </view>
     <view class="mt-12">
-      <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
-        <view class="picker">当前班级：{{currentClassName}}</view>
+      <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
+        <view class="picker">当前年级：{{currentGrade}}</view>
       </picker>
     </view>
 
@@ -30,7 +30,7 @@
         <text>{{item.lessonDate}} · {{item.subject}}</text>
         <text class="badge">{{item.status}}</text>
       </view>
-      <view class="sub mt-8">教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟 · 学生 {{item.studentCount}} 人</view>
+      <view class="sub mt-8">年级 {{item.grade}} · 学生 {{item.studentName || '未填'}} · 教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟</view>
       <view class="sub">内容：{{item.content || '未填写'}}</view>
       <view class="sub">作业：{{item.homework || '未填写'}}</view>
     </view>
@@ -44,13 +44,21 @@
   </view>
 
   <view class="card" wx:if="{{showCreatePanel}}">
-    <view class="section-title">新增课程记录</view>
+    <view class="section-title">课程信息</view>
     <view class="form-block">
-      <view class="field">
-        <view class="field-label">班级</view>
-        <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
-          <view class="picker">{{currentClassName}}</view>
-        </picker>
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">年级</view>
+          <picker mode="selector" range="{{grades}}" value="{{gradeIndex}}" bindchange="onGradeChange">
+            <view class="picker">{{currentGrade}}</view>
+          </picker>
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">学生</view>
+          <picker mode="selector" range="{{students}}" range-key="name" value="{{studentIndex}}" bindchange="onStudentChange">
+            <view class="picker">{{currentStudentName}}</view>
+          </picker>
+        </view>
       </view>
 
       <view class="field">
@@ -83,6 +91,13 @@
       </view>
 
       <view class="field">
+        <view class="field-label">出勤状态</view>
+        <picker mode="selector" range="{{attendanceOptions}}" value="{{attendanceIndex}}" bindchange="onAttendanceChange">
+          <view class="picker">{{attendance}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
         <view class="field-label">课程内容</view>
         <textarea class="textarea textarea-lg" placeholder="本节课重点内容（可记录知识点、授课过程、学生反馈）" value="{{content}}" bindinput="onContentInput" />
       </view>
@@ -91,21 +106,11 @@
         <view class="field-label">课后作业</view>
         <textarea class="textarea textarea-lg" placeholder="课后练习与作业安排（可分条记录）" value="{{homework}}" bindinput="onHomeworkInput" />
       </view>
-    </view>
-  </view>
 
-  <view class="card" wx:if="{{showCreatePanel}}">
-    <view class="section-title">学生出勤与评语</view>
-    <view wx:if="{{!students.length}}" class="sub">当前班级暂无学生</view>
-
-    <view wx:for="{{students}}" wx:key="id" class="list-item">
-      <view class="row">
-        <text>{{item.name}}</text>
-        <picker mode="selector" range="{{attendanceOptions}}" value="{{records[index].attendanceIndex}}" bindchange="onAttendanceChange" data-index="{{index}}">
-          <view class="badge">{{records[index].attendance}}</view>
-        </picker>
+      <view class="field">
+        <view class="field-label">课堂评语</view>
+        <textarea class="textarea textarea-md" placeholder="课堂评语（选填）" value="{{comment}}" bindinput="onCommentInput" />
       </view>
-      <textarea class="textarea textarea-md mt-12" placeholder="课堂评语（选填）" value="{{records[index].comment}}" bindinput="onCommentInput" data-index="{{index}}" />
     </view>
   </view>
 

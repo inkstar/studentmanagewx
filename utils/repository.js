@@ -19,6 +19,11 @@ function getClasses() {
   return db.getClasses();
 }
 
+function getGradeOptions() {
+  warnCloudFallback();
+  return db.getGradeOptions();
+}
+
 function getTags() {
   warnCloudFallback();
   return db.getTags();
@@ -114,6 +119,7 @@ function getRawDB() {
 
 module.exports = {
   getClasses,
+  getGradeOptions,
   getTags,
   getStudents,
   getStudentById,
