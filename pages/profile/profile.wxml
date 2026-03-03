@@ -19,7 +19,11 @@
     </picker>
 
     <input class="input" placeholder="云开发环境ID（CLOUD模式可填）" value="{{runtime.envId}}" bindinput="onEnvIdInput" />
-    <view class="btn-ghost" bindtap="saveEnvId">保存环境ID</view>
+    <view class="row">
+      <view class="btn-ghost" bindtap="saveEnvId">保存环境ID</view>
+      <view class="btn-ghost" bindtap="checkCloudHealth">检测云函数</view>
+    </view>
+    <view class="sub mt-12">云状态：{{cloudStatus}}</view>
   </view>
 
   <view class="card" wx:if="{{stats}}">

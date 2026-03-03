@@ -1,5 +1,6 @@
 const repo = require("../../utils/repository");
 const runtime = require("../../utils/runtime");
+const cloudClient = require("../../utils/cloudClient");
 const exporter = require("../../utils/exporter");
 
 const ROLE_OPTIONS = ["TEACHER", "ADMIN"];
@@ -14,6 +15,7 @@ Page({
   data: {
     version: "",
     stats: null,
+    cloudStatus: "未检测",
     runtime: {
       role: "TEACHER",
       dataMode: "LOCAL",
@@ -67,6 +69,23 @@ Page({
     const rt = runtime.setEnvId(this.data.runtime.envId || "");
     this.setData({ runtime: rt });
     wx.showToast({ title: "环境ID已保存", icon: "success" });
+  },
+
+  async checkCloudHealth() {
+    try {
+      const res = await cloudClient.call("health", {});
+      const ok = res && res.ok;
+      this.setData({
+        cloudStatus: ok ? "健康" : "异常"
+      });
+      wx.showToast({
+        title: ok ? "云函数可用" : "云函数异常",
+        icon: ok ? "success" : "none"
+      });
+    } catch (err) {
+      this.setData({ cloudStatus: "不可用" });
+      wx.showToast({ title: "云函数调用失败", icon: "none" });
+    }
   },
 
   resetDemo() {
