@@ -9,7 +9,8 @@ Page({
     filterGradeIndex: 0,
     gradeIndex: 0,
     currentGrade: "高一",
-    canAddStudent: true,
+    canManage: true,
+    showCreatePanel: false,
     importText: "",
     form: {
       name: "",
@@ -21,7 +22,7 @@ Page({
   onShow() {
     const app = getApp();
     this.setData({
-      canAddStudent: app.globalData.role === "ADMIN"
+      canManage: app.globalData.role === "ADMIN"
     });
     this.refresh();
   },
@@ -46,6 +47,10 @@ Page({
       currentGrade: grades[gradeIndex] || "高一",
       students
     });
+  },
+
+  toggleCreatePanel() {
+    this.setData({ showCreatePanel: !this.data.showCreatePanel });
   },
 
   onKeywordInput(e) {
@@ -100,11 +105,34 @@ Page({
     });
 
     this.setData({
-      form: { name: "", phone: "", guardian: "" }
+      form: { name: "", phone: "", guardian: "" },
+      showCreatePanel: false
     });
 
     this.refresh();
     wx.showToast({ title: "新增成功", icon: "success" });
+  },
+
+  deleteStudent(e) {
+    const id = e.currentTarget.dataset.id;
+    const name = e.currentTarget.dataset.name || "该学生";
+
+    wx.showModal({
+      title: "删除学生",
+      content: "确认删除「" + name + "」？其课程和进度记录也会一并删除。",
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+        const ok = repo.deleteStudent(id);
+        if (ok) {
+          this.refresh();
+          wx.showToast({ title: "已删除", icon: "success" });
+        } else {
+          wx.showToast({ title: "删除失败", icon: "none" });
+        }
+      }
+    });
   },
 
   importStudentsByCSV() {

@@ -49,6 +49,11 @@ function addStudentsBatch(items) {
   return db.addStudentsBatch(items);
 }
 
+function deleteStudent(studentId) {
+  warnCloudFallback();
+  return db.deleteStudent(studentId);
+}
+
 function getLessons(options) {
   warnCloudFallback();
   return db.getLessons(options);
@@ -125,6 +130,7 @@ module.exports = {
   getStudentById,
   addStudent,
   addStudentsBatch,
+  deleteStudent,
   getLessons,
   saveLesson,
   getLessonsByStudent,

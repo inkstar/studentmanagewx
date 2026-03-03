@@ -1,24 +1,48 @@
 <view class="container">
   <view class="hero">
-    <view class="hero-title">学生台账</view>
-    <view class="hero-sub">按年级管理学生信息与学习轨迹，支持批量导入。</view>
+    <view class="hero-title">学生记录清单</view>
+    <view class="hero-sub">按年级查看学生记录，支持新增与删除学生。</view>
     <view class="chip-row">
-      <view class="chip">总人数 {{students.length}}</view>
-      <view class="chip">新增默认年级 {{currentGrade}}</view>
+      <view class="chip">当前筛选 {{gradeFilterOptions[filterGradeIndex]}}</view>
+      <view class="chip">记录 {{students.length}}</view>
     </view>
   </view>
 
-  <view class="card">
-    <view class="section-title">搜索与筛选</view>
-    <input class="input" placeholder="搜索姓名 / 年级 / 手机号" value="{{keyword}}" bindinput="onKeywordInput" />
-    <picker mode="selector" range="{{gradeFilterOptions}}" value="{{filterGradeIndex}}" bindchange="onFilterGradeChange">
-      <view class="picker">筛选年级：{{gradeFilterOptions[filterGradeIndex]}}</view>
-    </picker>
+  <view class="card" wx:if="{{!showCreatePanel}}">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">学生记录列表</view>
+      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel" wx:if="{{canManage}}">新增学生</view>
+    </view>
+    <view class="mt-12">
+      <input class="input" placeholder="搜索姓名 / 年级 / 手机号" value="{{keyword}}" bindinput="onKeywordInput" />
+      <picker mode="selector" range="{{gradeFilterOptions}}" value="{{filterGradeIndex}}" bindchange="onFilterGradeChange">
+        <view class="picker">筛选年级：{{gradeFilterOptions[filterGradeIndex]}}</view>
+      </picker>
+    </view>
+
+    <view wx:if="{{!students.length}}" class="sub mt-12">暂无数据</view>
+    <view wx:for="{{students}}" wx:key="id" class="list-item">
+      <view class="row" bindtap="toStudentDetail" data-id="{{item.id}}">
+        <view>
+          <view class="title" style="font-size: 28rpx; margin-bottom: 6rpx;">{{item.name}}</view>
+          <view class="sub">{{item.grade}} · {{item.phone || '未填写手机号'}}</view>
+        </view>
+        <view class="badge">详情</view>
+      </view>
+      <view class="row mt-8">
+        <view class="sub">课堂 {{item.lessonCount}} 次 · 进度 {{item.examCount}} 次</view>
+        <view class="btn-danger" style="height:56rpx;line-height:56rpx;padding:0 16rpx;" wx:if="{{canManage}}" catchtap="deleteStudent" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
+      </view>
+    </view>
   </view>
 
-  <view class="card" wx:if="{{canAddStudent}}">
-    <view class="section-title">新增学生</view>
-    <view class="form-block">
+  <view class="card" wx:if="{{showCreatePanel && canManage}}">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">新增学生</view>
+      <view class="btn-ghost" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">返回列表</view>
+    </view>
+
+    <view class="form-block mt-12">
       <view class="field">
         <view class="field-label">姓名</view>
         <input class="input" placeholder="学生姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
@@ -43,7 +67,7 @@
     <view class="btn-primary" bindtap="addStudent">保存学生</view>
   </view>
 
-  <view class="card" wx:if="{{canAddStudent}}">
+  <view class="card" wx:if="{{showCreatePanel && canManage}}">
     <view class="section-title">批量导入</view>
     <view class="sub">每行格式：姓名,年级,手机号,家长。年级为空时默认使用当前新增年级。</view>
     <textarea class="textarea mt-12" placeholder="张三,七年级,13800000000,张妈妈" value="{{importText}}" bindinput="onImportTextInput" />
@@ -53,23 +77,8 @@
     </view>
   </view>
 
-  <view class="card" wx:else>
-    <view class="section-title">录入权限</view>
-    <view class="sub">当前角色为老师，仅管理员可新增和批量导入学生。</view>
-  </view>
-
-  <view class="card">
-    <view class="section-title">学生列表（{{students.length}}）</view>
-    <view wx:if="{{!students.length}}" class="sub">暂无数据</view>
-    <view wx:for="{{students}}" wx:key="id" class="list-item" bindtap="toStudentDetail" data-id="{{item.id}}">
-      <view class="row">
-        <view>
-          <view class="title" style="font-size: 28rpx; margin-bottom: 6rpx;">{{item.name}}</view>
-          <view class="sub">{{item.grade}} · {{item.phone || '未填写手机号'}}</view>
-        </view>
-        <view class="badge">详情</view>
-      </view>
-      <view class="sub mt-8">课堂 {{item.lessonCount}} 次 · 进度 {{item.examCount}} 次</view>
-    </view>
+  <view class="card" wx:if="{{!canManage}}">
+    <view class="section-title">权限说明</view>
+    <view class="sub">当前角色为老师，可查看学生记录；新增和删除仅管理员可操作。</view>
   </view>
 </view>

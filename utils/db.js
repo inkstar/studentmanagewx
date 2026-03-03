@@ -204,6 +204,28 @@ function addStudentsBatch(items) {
   return created;
 }
 
+function deleteStudent(studentId) {
+  const db = readDB();
+  const before = db.students.length;
+  db.students = db.students.filter((s) => s.id !== studentId);
+
+  if (db.students.length === before) {
+    return false;
+  }
+
+  db.lessons = db.lessons
+    .map((l) => ({
+      ...l,
+      records: (l.records || []).filter((r) => r.studentId !== studentId)
+    }))
+    .filter((l) => (l.records || []).length > 0);
+  db.exams = db.exams.filter((e) => e.studentId !== studentId);
+  db.weaknessLogs = db.weaknessLogs.filter((w) => w.studentId !== studentId);
+
+  writeDB(db);
+  return true;
+}
+
 function saveLesson(payload) {
   const db = readDB();
   const lesson = {
@@ -515,6 +537,7 @@ module.exports = {
   getStudentById,
   addStudent,
   addStudentsBatch,
+  deleteStudent,
   getLessons,
   saveLesson,
   getLessonsByStudent,
