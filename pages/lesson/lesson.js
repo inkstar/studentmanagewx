@@ -598,14 +598,14 @@ Page({
 
     const ctx = wx.createCanvasContext("lessonShareCanvas", this);
     const width = 720;
-    const height = 1480;
+    const height = 1360;
     const pageX = 24;
     const pageY = 24;
     const pageW = width - pageX * 2;
     const pageH = height - pageY * 2;
-    const headerH = 220;
+    const headerH = 252;
     const contentX = pageX + 24;
-    const contentY = pageY + headerH + 20;
+    const contentY = pageY + headerH + 16;
     const contentW = pageW - 48;
     const statusInfo = statusStyle(lesson.status);
     const infoRows = [
@@ -631,8 +631,8 @@ Page({
       String(now.getSeconds()).padStart(2, "0");
 
     const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-    bgGrad.addColorStop(0, "#eef2ff");
-    bgGrad.addColorStop(1, "#f8fafc");
+    bgGrad.addColorStop(0, "#f3f4f6");
+    bgGrad.addColorStop(1, "#f3f4f6");
     ctx.setFillStyle(bgGrad);
     ctx.fillRect(0, 0, width, height);
 
@@ -640,45 +640,50 @@ Page({
 
     const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
     headGrad.addColorStop(0, "#6366f1");
-    headGrad.addColorStop(1, "#8b5cf6");
+    headGrad.addColorStop(0.5, "#8E94F2");
+    headGrad.addColorStop(1, "#a855f7");
     drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 30, headGrad, null, 0);
     ctx.setFillStyle("rgba(255,255,255,0.16)");
-    for (let i = 0; i < 30; i += 1) {
-      const cx = pageX + 20 + ((i * 49) % (pageW - 40));
-      const cy = pageY + 20 + ((i * 37) % (headerH - 30));
+    for (let i = 0; i < 80; i += 1) {
+      const cx = pageX + 20 + ((i * 37) % (pageW - 40));
+      const cy = pageY + 20 + ((i * 29) % (headerH - 40));
       ctx.beginPath();
-      ctx.arc(cx, cy, i % 3 === 0 ? 2 : 1.2, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 1, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    ctx.setFillStyle("#ffffff");
-    ctx.setFontSize(42);
-    ctx.fillText("课程记录与反馈", pageX + 34, pageY + 72);
-    ctx.setFontSize(24);
-    ctx.setFillStyle("rgba(255,255,255,0.92)");
-    ctx.fillText("Lesson Record & Feedback", pageX + 34, pageY + 108);
-    ctx.setFillStyle("rgba(255,255,255,0.9)");
-    ctx.setFontSize(22);
-    ctx.fillText("适用于家长同步与课后复盘", pageX + 34, pageY + 142);
+    ctx.setFillStyle("rgba(255,255,255,0.66)");
+    ctx.setFontSize(19);
+    ctx.fillText("1/1", pageX + pageW - 48, pageY + 30);
 
-    drawRoundedBlock(ctx, pageX + 34, pageY + 166, 168, 36, 18, "rgba(255,255,255,0.2)", null, 0);
     ctx.setFillStyle("#ffffff");
+    ctx.setFontSize(50);
+    ctx.fillText("课程记录与反馈", pageX + 34, pageY + 92);
+    ctx.setFontSize(27);
+    ctx.setFillStyle("rgba(255,255,255,0.92)");
+    ctx.fillText("Lesson Record & Feedback", pageX + 34, pageY + 132);
+    ctx.setFillStyle("rgba(255,255,255,0.9)");
     ctx.setFontSize(20);
-    ctx.fillText("状态: " + statusInfo.text, pageX + 48, pageY + 190);
+    ctx.fillText("适用于家长同步与课后复盘", pageX + 34, pageY + 166);
+
+    drawRoundedBlock(ctx, pageX + 34, pageY + 184, 176, 42, 21, "rgba(255,255,255,0.2)", "rgba(255,255,255,0.3)", 1);
+    ctx.setFillStyle("#ffffff");
+    ctx.setFontSize(19);
+    ctx.fillText("状态: " + statusInfo.text, pageX + 50, pageY + 211);
 
     const infoTop = contentY;
     const boxGap = 12;
     const boxW = (contentW - boxGap) / 2;
-    const boxH = 96;
+    const boxH = 102;
 
     infoRows.forEach((row, idx) => {
       const col = idx % 2;
       const r = Math.floor(idx / 2);
       const x = contentX + col * (boxW + boxGap);
       const y = infoTop + r * (boxH + boxGap);
-      drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#f8fafc", "#e2e8f0", 1);
-      ctx.setFillStyle("#64748b");
-      ctx.setFontSize(20);
+      drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#f8fafc", "#f1f5f9", 1);
+      ctx.setFillStyle("#94a3b8");
+      ctx.setFontSize(19);
       ctx.fillText(row[0], x + 14, y + 30);
       ctx.setFillStyle("#0f172a");
       ctx.setFontSize(26);
@@ -694,36 +699,37 @@ Page({
 
     function drawSection(y, title, text, lineCap) {
       ctx.setFillStyle("#312e81");
-      ctx.setFontSize(28);
+      ctx.setFontSize(30);
       ctx.fillText(title, contentX, y + 22);
       const boxY = y + 36;
-      const boxHLocal = 188;
-      drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#ffffff", "#dbe4ff", 1);
+      const boxHLocal = 152;
+      drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#ffffff", "#f8fafc", 3);
 
       ctx.setFillStyle("#334155");
-      ctx.setFontSize(24);
+      ctx.setFontSize(22);
       drawParagraph(ctx, {
         text: text || "暂无内容",
         x: contentX + 16,
-        y: boxY + 34,
+        y: boxY + 32,
         maxWidth: contentW - 32,
-        lineHeight: 33,
+        lineHeight: 31,
         maxLines: lineCap
       });
       return boxY + boxHLocal + 18;
     }
 
     let cursorY = infoTop + 3 * (boxH + boxGap) + 24;
-    cursorY = drawSection(cursorY, "课程内容", lesson.content, 4);
-    cursorY = drawSection(cursorY, "学生情况", lesson.studentPerformance || lesson.comment || "", 4);
-    cursorY = drawSection(cursorY, "课后作业", lesson.homework, 4);
+    cursorY = drawSection(cursorY, "课程内容", lesson.content, 3);
+    cursorY = drawSection(cursorY, "学生情况", lesson.studentPerformance || lesson.comment || "", 3);
+    cursorY = drawSection(cursorY, "课后作业", lesson.homework, 3);
 
     const footerH = 78;
     const footerY = pageY + pageH - footerH;
-    drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#e2e8f0", 1);
-    ctx.setFillStyle("#64748b");
-    ctx.setFontSize(20);
+    drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#f1f5f9", 1);
+    ctx.setFillStyle("#94a3b8");
+    ctx.setFontSize(19);
     ctx.fillText("生成时间: " + ts, pageX + 26, footerY + 30);
+    ctx.setFillStyle("#64748b");
     ctx.fillText("学生课程管理系统 · 教师端", pageX + 26, footerY + 58);
 
     wx.showLoading({ title: "生成中..." });
