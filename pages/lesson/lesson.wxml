@@ -31,7 +31,7 @@
             <view class="student-name">{{item.studentName}}</view>
             <view class="subject-badge {{item.subject === '数学' ? 'math' : 'other'}}">{{item.subject}}</view>
           </view>
-          <view class="time-line">{{item.lessonDate}} · {{item.timeRange}}</view>
+          <view class="time-line">{{item.grade || '-'}} · {{item.lessonDate}} · {{item.timeRange}}</view>
         </view>
       </view>
       <view class="status-badge">{{item.status}}</view>

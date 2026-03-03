@@ -221,7 +221,7 @@ Page({
   },
 
   loadLessons() {
-    const lessons = repo.getLessons({ grade: this.data.currentGrade, limit: 300 }).map((item) => ({
+    const lessons = repo.getLessons({ limit: 300 }).map((item) => ({
       ...item,
       studentAvatarLetter: firstChar(item.studentName),
       timeRange: item.startTime && item.endTime ? item.startTime + "-" + item.endTime : "时间未填",
