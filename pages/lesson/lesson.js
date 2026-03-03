@@ -1,6 +1,7 @@
 const db = require("../../utils/repository");
 
 const ATTENDANCE_OPTIONS = ["出勤", "迟到", "缺勤"];
+const LESSON_STATUS = ["已完成", "已取消", "已改期"];
 
 function today() {
   const d = new Date();
@@ -16,6 +17,11 @@ Page({
     classIndex: 0,
     currentClassName: "暂无班级",
     lessonDate: today(),
+    subject: "数学",
+    teacher: "",
+    duration: "120",
+    lessonStatusOptions: LESSON_STATUS,
+    lessonStatusIndex: 0,
     content: "",
     homework: "",
     students: [],
@@ -37,7 +43,7 @@ Page({
     } catch (err) {
       console.error("lesson onShow failed", err);
       this.setData({
-        fatalError: "课堂页面加载失败，请点击“我的”->“重置示例数据”后重试。"
+        fatalError: "课程页面加载失败，请点击“我的”->“重置示例数据”后重试。"
       });
     }
   },
@@ -70,6 +76,10 @@ Page({
     this.loadStudentsByClass();
   },
 
+  onStatusChange(e) {
+    this.setData({ lessonStatusIndex: Number(e.detail.value) });
+  },
+
   onDateInput(e) {
     this.setData({ lessonDate: e.detail.value });
   },
@@ -80,6 +90,18 @@ Page({
 
   onHomeworkInput(e) {
     this.setData({ homework: e.detail.value });
+  },
+
+  onSubjectInput(e) {
+    this.setData({ subject: e.detail.value });
+  },
+
+  onTeacherInput(e) {
+    this.setData({ teacher: e.detail.value });
+  },
+
+  onDurationInput(e) {
+    this.setData({ duration: e.detail.value });
   },
 
   onAttendanceChange(e) {
@@ -113,6 +135,10 @@ Page({
     db.saveLesson({
       classId: classes[this.data.classIndex].id,
       lessonDate: this.data.lessonDate,
+      subject: this.data.subject.trim() || "数学",
+      teacher: this.data.teacher.trim(),
+      duration: Number(this.data.duration || 120),
+      status: LESSON_STATUS[this.data.lessonStatusIndex],
       content: this.data.content.trim(),
       homework: this.data.homework.trim(),
       records: this.data.records.map((r) => ({
@@ -122,6 +148,6 @@ Page({
       }))
     });
 
-    wx.showToast({ title: "课堂已保存", icon: "success" });
+    wx.showToast({ title: "课程已保存", icon: "success" });
   }
 });

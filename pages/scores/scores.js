@@ -1,5 +1,7 @@
 const db = require("../../utils/repository");
 
+const MASTERY_LEVELS = ["优秀", "良好", "一般", "薄弱"];
+
 function today() {
   const d = new Date();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -13,10 +15,12 @@ Page({
     tags: [],
     studentIndex: 0,
     tagIndex: 0,
+    masteryIndex: 2,
+    masteryOptions: MASTERY_LEVELS,
     currentStudentName: "暂无学生",
     currentTagName: "暂无标签",
     form: {
-      examName: "月考",
+      examName: "阶段测验",
       examDate: today(),
       math: "",
       english: "",
@@ -66,6 +70,10 @@ Page({
     });
   },
 
+  onMasteryChange(e) {
+    this.setData({ masteryIndex: Number(e.detail.value) });
+  },
+
   onFormInput(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({
@@ -81,7 +89,7 @@ Page({
 
     const f = this.data.form;
     if (!f.examName.trim()) {
-      wx.showToast({ title: "请输入考试名称", icon: "none" });
+      wx.showToast({ title: "请输入测验名称", icon: "none" });
       return;
     }
 
@@ -97,6 +105,7 @@ Page({
       studentId: student.id,
       examName: f.examName.trim(),
       examDate: f.examDate.trim() || today(),
+      masteryLevel: MASTERY_LEVELS[this.data.masteryIndex],
       subjectScores: {
         math: Number(f.math || 0),
         english: Number(f.english || 0)
@@ -114,10 +123,11 @@ Page({
         english: "",
         total: "",
         comment: ""
-      }
+      },
+      masteryIndex: 2
     });
 
     this.refresh();
-    wx.showToast({ title: "成绩已保存", icon: "success" });
+    wx.showToast({ title: "进度已保存", icon: "success" });
   }
 });

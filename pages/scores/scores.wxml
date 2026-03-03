@@ -1,40 +1,53 @@
 <view class="container">
-  <view class="card">
-    <view class="title">成绩录入</view>
-    <picker mode="selector" range="{{students}}" range-key="name" value="{{studentIndex}}" bindchange="onStudentChange">
-      <view class="picker">学生：{{currentStudentName}}</view>
-    </picker>
-    <input class="input" placeholder="考试名称" value="{{form.examName}}" data-key="examName" bindinput="onFormInput" />
-    <input class="input" placeholder="考试日期，如 2026-03-03" value="{{form.examDate}}" data-key="examDate" bindinput="onFormInput" />
-    <input class="input" type="number" placeholder="数学分" value="{{form.math}}" data-key="math" bindinput="onFormInput" />
-    <input class="input" type="number" placeholder="英语分" value="{{form.english}}" data-key="english" bindinput="onFormInput" />
-    <input class="input" type="number" placeholder="总分" value="{{form.total}}" data-key="total" bindinput="onFormInput" />
-    <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
-      <view class="picker">关联薄弱点：{{currentTagName}}</view>
-    </picker>
-    <textarea class="textarea" placeholder="评语（选填）" value="{{form.comment}}" data-key="comment" bindinput="onFormInput" />
-    <view class="btn-primary" bindtap="saveExam">保存成绩</view>
-  </view>
-
-  <view class="card">
-    <view class="title">薄弱点统计 Top5</view>
-    <view wx:if="{{!weaknessStats.length}}" class="sub">暂无薄弱点数据</view>
-    <view wx:for="{{weaknessStats}}" wx:key="tagId" class="row mt-12">
-      <text>{{item.tagName}}</text>
-      <text class="badge">{{item.count}} 次</text>
+  <view class="hero">
+    <view class="hero-title">学习进度</view>
+    <view class="hero-sub">记录测验成绩、掌握程度与薄弱点，持续追踪学生学习状态。</view>
+    <view class="chip-row">
+      <view class="chip">记录 {{records.length}}</view>
+      <view class="chip">薄弱点 {{weaknessStats.length}}</view>
     </view>
   </view>
 
   <view class="card">
-    <view class="title">最近成绩</view>
-    <view wx:if="{{!records.length}}" class="sub">暂无成绩记录</view>
-    <view wx:for="{{records}}" wx:key="id" class="mt-12">
+    <view class="section-title">进度录入</view>
+    <picker mode="selector" range="{{students}}" range-key="name" value="{{studentIndex}}" bindchange="onStudentChange">
+      <view class="picker">学生：{{currentStudentName}}</view>
+    </picker>
+    <input class="input" placeholder="测验名称" value="{{form.examName}}" data-key="examName" bindinput="onFormInput" />
+    <input class="input" placeholder="测验日期，如 2026-03-03" value="{{form.examDate}}" data-key="examDate" bindinput="onFormInput" />
+    <picker mode="selector" range="{{masteryOptions}}" value="{{masteryIndex}}" bindchange="onMasteryChange">
+      <view class="picker">掌握程度：{{masteryOptions[masteryIndex]}}</view>
+    </picker>
+    <view class="row">
+      <input class="input" type="number" placeholder="数学分" value="{{form.math}}" data-key="math" bindinput="onFormInput" />
+      <input class="input" type="number" placeholder="英语分" value="{{form.english}}" data-key="english" bindinput="onFormInput" />
+    </view>
+    <input class="input" type="number" placeholder="总分" value="{{form.total}}" data-key="total" bindinput="onFormInput" />
+    <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
+      <view class="picker">关联薄弱点：{{currentTagName}}</view>
+    </picker>
+    <textarea class="textarea" placeholder="备注（选填）" value="{{form.comment}}" data-key="comment" bindinput="onFormInput" />
+    <view class="btn-primary" bindtap="saveExam">保存学习进度</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">薄弱点 Top5</view>
+    <view wx:if="{{!weaknessStats.length}}" class="sub">暂无薄弱点数据</view>
+    <view wx:for="{{weaknessStats}}" wx:key="tagId" class="list-item">
+      <view class="row"><text>{{item.tagName}}</text><text class="badge">{{item.count}} 次</text></view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">最近进度记录</view>
+    <view wx:if="{{!records.length}}" class="sub">暂无进度记录</view>
+    <view wx:for="{{records}}" wx:key="id" class="list-item">
       <view class="row">
         <text>{{item.studentName}} · {{item.examName}}</text>
-        <text class="badge">总分 {{item.totalScore}}</text>
+        <text class="badge">{{item.masteryLevel}}</text>
       </view>
-      <view class="sub">{{item.examDate}} · 数学{{item.subjectScores.math}} / 英语{{item.subjectScores.english}}</view>
-      <view class="sub">{{item.comment || '无评语'}}</view>
+      <view class="sub mt-8">{{item.examDate}} · 总分 {{item.totalScore}}（数学{{item.subjectScores.math}} / 英语{{item.subjectScores.english}}）</view>
+      <view class="sub">{{item.comment || '无备注'}}</view>
     </view>
   </view>
 </view>

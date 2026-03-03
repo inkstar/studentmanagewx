@@ -1,11 +1,20 @@
 <view class="container">
+  <view class="hero">
+    <view class="hero-title">学生台账</view>
+    <view class="hero-sub">管理学生档案、批量导入和学习轨迹，支持按班级快速筛查。</view>
+    <view class="chip-row">
+      <view class="chip">总人数 {{students.length}}</view>
+      <view class="chip">当前班级 {{currentClassName}}</view>
+    </view>
+  </view>
+
   <view class="card">
-    <view class="title">学生管理</view>
-    <input class="input" placeholder="搜索姓名/班级/手机号" value="{{keyword}}" bindinput="onKeywordInput" />
+    <view class="section-title">快速搜索</view>
+    <input class="input" placeholder="搜索姓名 / 班级 / 手机号" value="{{keyword}}" bindinput="onKeywordInput" />
   </view>
 
   <view class="card" wx:if="{{canAddStudent}}">
-    <view class="title">新增学生</view>
+    <view class="section-title">新增学生</view>
     <input class="input" placeholder="姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
     <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
       <view class="picker">班级：{{currentClassName}}</view>
@@ -16,30 +25,32 @@
   </view>
 
   <view class="card" wx:if="{{canAddStudent}}">
-    <view class="title">批量导入（CSV 粘贴）</view>
-    <view class="sub">每行格式：姓名,班级名,手机号,家长。班级名为空或不匹配时使用当前选择班级。</view>
-    <textarea class="textarea mt-12" placeholder="示例：&#10;张三,高一-1v1-张老师,13800000000,张妈妈&#10;李四,高一-1v3-李老师,13900000000,李爸爸" value="{{importText}}" bindinput="onImportTextInput" />
+    <view class="section-title">批量导入</view>
+    <view class="sub">每行格式：姓名,班级名,手机号,家长。班级缺失时使用当前班级。</view>
+    <textarea class="textarea mt-12" placeholder="张三,高一-1v1-张老师,13800000000,张妈妈" value="{{importText}}" bindinput="onImportTextInput" />
     <view class="row">
       <view class="btn-ghost" bindtap="copyImportTemplate">复制模板</view>
-      <view class="btn-ghost" bindtap="importStudentsByCSV">执行批量导入</view>
+      <view class="btn-primary" bindtap="importStudentsByCSV">执行导入</view>
     </view>
   </view>
 
   <view class="card" wx:else>
-    <view class="title">新增学生</view>
-    <view class="sub">当前角色为老师，仅管理员可新增学生。</view>
+    <view class="section-title">录入权限</view>
+    <view class="sub">当前角色为老师，仅管理员可新增和批量导入学生。</view>
   </view>
 
   <view class="card">
-    <view class="title">学生列表（{{students.length}}）</view>
+    <view class="section-title">学生列表（{{students.length}}）</view>
     <view wx:if="{{!students.length}}" class="sub">暂无数据</view>
-    <view wx:for="{{students}}" wx:key="id" class="row mt-12" bindtap="toStudentDetail" data-id="{{item.id}}">
-      <view>
-        <view>{{item.name}}</view>
-        <view class="sub">{{item.className}} · {{item.phone || '未填写手机号'}}</view>
-        <view class="sub">课堂 {{item.lessonCount}} 次 · 考试 {{item.examCount}} 次</view>
+    <view wx:for="{{students}}" wx:key="id" class="list-item" bindtap="toStudentDetail" data-id="{{item.id}}">
+      <view class="row">
+        <view>
+          <view class="title" style="font-size: 28rpx; margin-bottom: 6rpx;">{{item.name}}</view>
+          <view class="sub">{{item.className}} · {{item.phone || '未填写手机号'}}</view>
+        </view>
+        <view class="badge">详情</view>
       </view>
-      <view class="badge">详情</view>
+      <view class="sub mt-8">课堂 {{item.lessonCount}} 次 · 考试 {{item.examCount}} 次</view>
     </view>
   </view>
 </view>

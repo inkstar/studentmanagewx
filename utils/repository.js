@@ -84,6 +84,14 @@ function getDashboardStats() {
   return db.getDashboardStats();
 }
 
+function getDashboardOverview() {
+  warnCloudFallback();
+  return {
+    stats: db.getDashboardStats(),
+    progressDistribution: db.getProgressDistribution()
+  };
+}
+
 function getLatestLessonSummary() {
   warnCloudFallback();
   return db.getLatestLessonSummary();
@@ -114,6 +122,7 @@ module.exports = {
   getWeaknessLogsByStudent,
   getWeaknessStats,
   getDashboardStats,
+  getDashboardOverview,
   getLatestLessonSummary,
   resetDB,
   getRawDB,

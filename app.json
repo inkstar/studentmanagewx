@@ -8,8 +8,8 @@
     "pages/profile/profile"
   ],
   "window": {
-    "navigationBarTitleText": "学生管理",
-    "navigationBarBackgroundColor": "#0f172a",
+    "navigationBarTitleText": "学生课程管理",
+    "navigationBarBackgroundColor": "#102a56",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f5f7fb",
     "backgroundTextStyle": "light"
@@ -22,19 +22,19 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "工作台"
+        "text": "仪表盘"
       },
       {
         "pagePath": "pages/students/students",
-        "text": "学生"
+        "text": "学生管理"
       },
       {
         "pagePath": "pages/lesson/lesson",
-        "text": "课堂"
+        "text": "课程记录"
       },
       {
         "pagePath": "pages/scores/scores",
-        "text": "成绩"
+        "text": "学习进度"
       },
       {
         "pagePath": "pages/profile/profile",

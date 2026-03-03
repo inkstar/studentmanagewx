@@ -1,24 +1,39 @@
 <view class="container">
+  <view class="hero">
+    <view class="hero-title">课程记录</view>
+    <view class="hero-sub">记录上课信息、课程状态、出勤与课堂评语。</view>
+    <view class="chip-row">
+      <view class="chip">班级 {{currentClassName}}</view>
+      <view class="chip">学生 {{students.length}}</view>
+    </view>
+  </view>
+
   <view class="card" wx:if="{{fatalError}}">
-    <view class="title">页面错误</view>
+    <view class="section-title">页面错误</view>
     <view class="sub">{{fatalError}}</view>
   </view>
 
   <view class="card">
-    <view class="title">课堂登记</view>
+    <view class="section-title">课程信息</view>
     <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
       <view class="picker">班级：{{currentClassName}}</view>
     </picker>
     <input class="input" placeholder="上课日期，如 2026-03-03" value="{{lessonDate}}" bindinput="onDateInput" />
+    <input class="input" placeholder="科目（如 数学）" value="{{subject}}" bindinput="onSubjectInput" />
+    <input class="input" placeholder="授课老师" value="{{teacher}}" bindinput="onTeacherInput" />
+    <input class="input" type="number" placeholder="时长（分钟）" value="{{duration}}" bindinput="onDurationInput" />
+    <picker mode="selector" range="{{lessonStatusOptions}}" value="{{lessonStatusIndex}}" bindchange="onStatusChange">
+      <view class="picker">状态：{{lessonStatusOptions[lessonStatusIndex]}}</view>
+    </picker>
     <input class="input" placeholder="本节课内容" value="{{content}}" bindinput="onContentInput" />
     <input class="input" placeholder="课后作业" value="{{homework}}" bindinput="onHomeworkInput" />
   </view>
 
   <view class="card">
-    <view class="title">学生出勤与评语</view>
+    <view class="section-title">学生出勤与评语</view>
     <view wx:if="{{!students.length}}" class="sub">当前班级暂无学生</view>
 
-    <view wx:for="{{students}}" wx:key="id" class="mt-20">
+    <view wx:for="{{students}}" wx:key="id" class="list-item">
       <view class="row">
         <text>{{item.name}}</text>
         <picker mode="selector" range="{{attendanceOptions}}" value="{{records[index].attendanceIndex}}" bindchange="onAttendanceChange" data-index="{{index}}">
@@ -29,5 +44,5 @@
     </view>
   </view>
 
-  <view class="btn-primary" bindtap="saveLesson">保存本节课记录</view>
+  <view class="btn-primary" bindtap="saveLesson">保存课程记录</view>
 </view>

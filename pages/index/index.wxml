@@ -1,37 +1,48 @@
 <view class="container">
-  <view class="card">
-    <view class="title">教学工作台</view>
-    <view class="sub">聚合今日教学进度、成绩与薄弱点数据，支持老师快速回顾。</view>
+  <view class="hero">
+    <view class="hero-title">教学仪表盘</view>
+    <view class="hero-sub">参考课程管理模板重构：聚合学生、课程、出勤率和学习进度分布。</view>
+    <view class="chip-row">
+      <view class="chip">学生 {{stats.totalStudents}}</view>
+      <view class="chip">课程 {{stats.totalLessons}}</view>
+      <view class="chip">出勤率 {{stats.attendanceRate}}%</view>
+    </view>
   </view>
 
-  <view class="grid">
-    <view class="stat">
-      <view class="sub">学生总数</view>
-      <view class="stat-num">{{stats.totalStudents}}</view>
+  <view class="card">
+    <view class="section-title">核心统计</view>
+    <view class="grid">
+      <view class="stat">
+        <view class="sub">学生总数</view>
+        <view class="stat-num">{{stats.totalStudents}}</view>
+      </view>
+      <view class="stat">
+        <view class="sub">课程记录</view>
+        <view class="stat-num">{{stats.totalLessons}}</view>
+      </view>
+      <view class="stat">
+        <view class="sub">本周进度</view>
+        <view class="stat-num">{{stats.weeklyExams}}</view>
+      </view>
+      <view class="stat">
+        <view class="sub">薄弱点记录</view>
+        <view class="stat-num">{{stats.weaknessAlerts}}</view>
+      </view>
     </view>
-    <view class="stat">
-      <view class="sub">课堂记录</view>
-      <view class="stat-num">{{stats.totalLessons}}</view>
-    </view>
-    <view class="stat">
-      <view class="sub">本周考试</view>
-      <view class="stat-num">{{stats.weeklyExams}}</view>
-    </view>
-    <view class="stat">
-      <view class="sub">薄弱点预警</view>
-      <view class="stat-num">{{stats.weaknessAlerts}}</view>
-    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">掌握程度分布</view>
+    <view class="kv"><view class="kv-key">优秀</view><view class="kv-value">{{progressDistribution.excellent}}</view></view>
+    <view class="kv"><view class="kv-key">良好</view><view class="kv-value">{{progressDistribution.good}}</view></view>
+    <view class="kv"><view class="kv-key">一般</view><view class="kv-value">{{progressDistribution.fair}}</view></view>
+    <view class="kv"><view class="kv-key">薄弱</view><view class="kv-value">{{progressDistribution.weak}}</view></view>
   </view>
 
   <view class="card" wx:if="{{latestLesson}}">
-    <view class="title">最近一节课</view>
-    <view class="sub">日期：{{latestLesson.lessonDate}}</view>
-    <view class="sub">内容：{{latestLesson.content || '未填写'}}</view>
-    <view class="sub">出勤 {{latestLesson.present}} / 迟到 {{latestLesson.late}} / 缺勤 {{latestLesson.absent}}</view>
-  </view>
-
-  <view class="card" wx:else>
-    <view class="title">最近一节课</view>
-    <view class="sub">暂无课堂记录，请前往“课堂”页登记。</view>
+    <view class="section-title">最近课程</view>
+    <view class="kv"><view class="kv-key">日期</view><view class="kv-value">{{latestLesson.lessonDate}}</view></view>
+    <view class="kv"><view class="kv-key">主题</view><view class="kv-value">{{latestLesson.content || '未填写'}}</view></view>
+    <view class="kv"><view class="kv-key">出勤/迟到/缺勤</view><view class="kv-value">{{latestLesson.present}} / {{latestLesson.late}} / {{latestLesson.absent}}</view></view>
   </view>
 </view>

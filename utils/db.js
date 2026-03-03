@@ -170,6 +170,10 @@ function saveLesson(payload) {
     id: uid("lesson"),
     classId: payload.classId,
     lessonDate: payload.lessonDate,
+    subject: payload.subject || "数学",
+    teacher: payload.teacher || "",
+    duration: Number(payload.duration || 120),
+    status: payload.status || "已完成",
     content: payload.content,
     homework: payload.homework,
     records: payload.records,
@@ -189,6 +193,10 @@ function getLessonsByStudent(studentId) {
       list.push({
         lessonId: l.id,
         lessonDate: l.lessonDate,
+        subject: l.subject || "数学",
+        teacher: l.teacher || "",
+        duration: l.duration || 120,
+        status: l.status || "已完成",
         content: l.content,
         attendance: found.attendance,
         comment: found.comment || ""
@@ -207,6 +215,7 @@ function saveExam(payload) {
     examDate: payload.examDate,
     subjectScores: payload.subjectScores,
     totalScore: payload.totalScore,
+    masteryLevel: payload.masteryLevel || "一般",
     comment: payload.comment || "",
     weaknessTagId: payload.weaknessTagId || "",
     createdAt: Date.now()
@@ -247,6 +256,7 @@ function getExamRecords(studentId) {
       examName: e.examName,
       examDate: e.examDate,
       totalScore: e.totalScore,
+      masteryLevel: e.masteryLevel || "一般",
       subjectScores: e.subjectScores,
       comment: e.comment,
       className: classMap[(db.students.find((s) => s.id === e.studentId) || {}).classId] || ""
@@ -315,6 +325,19 @@ function getDashboardStats() {
     }
   });
 
+  let totalAttendance = 0;
+  let presentAttendance = 0;
+  db.lessons.forEach((l) => {
+    (l.records || []).forEach((r) => {
+      totalAttendance += 1;
+      if (r.attendance === "出勤") {
+        presentAttendance += 1;
+      }
+    });
+  });
+
+  const attendanceRate = totalAttendance ? Math.round((presentAttendance / totalAttendance) * 100) : 0;
+
   const missingLessonRecords = db.students.length - (db.lessons[0] ? db.lessons[0].records.length : 0);
 
   return {
@@ -322,8 +345,32 @@ function getDashboardStats() {
     totalLessons: db.lessons.length,
     weeklyExams,
     weaknessAlerts: db.weaknessLogs.length,
-    pendingRecords: missingLessonRecords > 0 ? missingLessonRecords : 0
+    pendingRecords: missingLessonRecords > 0 ? missingLessonRecords : 0,
+    attendanceRate
   };
+}
+
+function getProgressDistribution() {
+  const db = readDB();
+  const dist = {
+    excellent: 0,
+    good: 0,
+    fair: 0,
+    weak: 0
+  };
+  db.exams.forEach((e) => {
+    const lv = String(e.masteryLevel || "一般");
+    if (lv === "优秀") {
+      dist.excellent += 1;
+    } else if (lv === "良好") {
+      dist.good += 1;
+    } else if (lv === "一般") {
+      dist.fair += 1;
+    } else {
+      dist.weak += 1;
+    }
+  });
+  return dist;
 }
 
 function formatDateTime(ts) {
@@ -370,6 +417,7 @@ module.exports = {
   getWeaknessLogsByStudent,
   getWeaknessStats,
   getDashboardStats,
+  getProgressDistribution,
   getLatestLessonSummary,
   resetDB,
   getRawDB
