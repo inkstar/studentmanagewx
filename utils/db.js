@@ -184,6 +184,38 @@ function saveLesson(payload) {
   return lesson;
 }
 
+function getLessons(options) {
+  const db = readDB();
+  const opts = options || {};
+  const classId = opts.classId || "";
+  const limit = Number(opts.limit || 50);
+
+  const classMap = {};
+  db.classes.forEach((c) => {
+    classMap[c.id] = c.name;
+  });
+
+  const list = db.lessons
+    .filter((l) => (!classId ? true : l.classId === classId))
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    .slice(0, limit)
+    .map((l) => ({
+      id: l.id,
+      classId: l.classId,
+      className: classMap[l.classId] || "未分班",
+      lessonDate: l.lessonDate,
+      subject: l.subject || "数学",
+      teacher: l.teacher || "",
+      duration: l.duration || 120,
+      status: l.status || "已完成",
+      content: l.content || "",
+      homework: l.homework || "",
+      studentCount: Array.isArray(l.records) ? l.records.length : 0
+    }));
+
+  return list;
+}
+
 function getLessonsByStudent(studentId) {
   const db = readDB();
   const list = [];
@@ -409,6 +441,7 @@ module.exports = {
   getStudentById,
   addStudent,
   addStudentsBatch,
+  getLessons,
   saveLesson,
   getLessonsByStudent,
   saveExam,

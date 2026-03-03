@@ -1,10 +1,10 @@
 <view class="container">
   <view class="hero">
     <view class="hero-title">课程记录</view>
-    <view class="hero-sub">记录上课信息、课程状态、出勤与课堂评语。</view>
+    <view class="hero-sub">展示课程记录列表，并支持按班级新增课程记录。</view>
     <view class="chip-row">
       <view class="chip">班级 {{currentClassName}}</view>
-      <view class="chip">学生 {{students.length}}</view>
+      <view class="chip">记录 {{lessons.length}}</view>
     </view>
   </view>
 
@@ -14,7 +14,30 @@
   </view>
 
   <view class="card">
-    <view class="section-title">课程信息</view>
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">课程记录列表</view>
+      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">{{showCreatePanel ? '收起' : '新增课程记录'}}</view>
+    </view>
+    <view class="mt-12">
+      <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
+        <view class="picker">当前班级：{{currentClassName}}</view>
+      </picker>
+    </view>
+
+    <view wx:if="{{!lessons.length}}" class="sub mt-12">暂无课程记录</view>
+    <view wx:for="{{lessons}}" wx:key="id" class="list-item">
+      <view class="row">
+        <text>{{item.lessonDate}} · {{item.subject}}</text>
+        <text class="badge">{{item.status}}</text>
+      </view>
+      <view class="sub mt-8">教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟 · 学生 {{item.studentCount}} 人</view>
+      <view class="sub">内容：{{item.content || '未填写'}}</view>
+      <view class="sub">作业：{{item.homework || '未填写'}}</view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{showCreatePanel}}">
+    <view class="section-title">新增课程记录</view>
     <view class="form-block">
       <view class="field">
         <view class="field-label">班级</view>
@@ -64,7 +87,7 @@
     </view>
   </view>
 
-  <view class="card">
+  <view class="card" wx:if="{{showCreatePanel}}">
     <view class="section-title">学生出勤与评语</view>
     <view wx:if="{{!students.length}}" class="sub">当前班级暂无学生</view>
 
@@ -79,7 +102,7 @@
     </view>
   </view>
 
-  <view class="action-bar">
+  <view class="action-bar" wx:if="{{showCreatePanel}}">
     <view class="btn-primary" bindtap="saveLesson">保存课程记录</view>
   </view>
 </view>

@@ -1,7 +1,7 @@
 <view class="container">
   <view class="hero">
-    <view class="hero-title">个人与系统</view>
-    <view class="hero-sub">管理角色、运行模式、云函数联通状态与数据导出。</view>
+    <view class="hero-title">我的</view>
+    <view class="hero-sub">统一配置角色、运行模式、云连通性与导出工具。</view>
     <view class="chip-row">
       <view class="chip">{{runtime.role}}</view>
       <view class="chip">{{runtime.dataMode}}</view>
@@ -11,56 +11,62 @@
 
   <view class="card">
     <view class="section-title">运行配置</view>
+    <view class="form-block">
+      <view class="field">
+        <view class="field-label">角色</view>
+        <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
+          <view class="picker">{{roleOptions[roleIndex]}}</view>
+        </picker>
+      </view>
 
-    <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
-      <view class="picker">角色：{{roleOptions[roleIndex]}}</view>
-    </picker>
+      <view class="field">
+        <view class="field-label">数据模式</view>
+        <picker mode="selector" range="{{modeOptions}}" value="{{modeIndex}}" bindchange="onModeChange">
+          <view class="picker">{{modeOptions[modeIndex]}}</view>
+        </picker>
+      </view>
 
-    <picker mode="selector" range="{{modeOptions}}" value="{{modeIndex}}" bindchange="onModeChange">
-      <view class="picker">数据模式：{{modeOptions[modeIndex]}}</view>
-    </picker>
+      <view class="field">
+        <view class="field-label">云开发环境 ID</view>
+        <input class="input" placeholder="CLOUD 模式可填" value="{{runtime.envId}}" bindinput="onEnvIdInput" />
+      </view>
 
-    <input class="input" placeholder="云开发环境ID（CLOUD模式可填）" value="{{runtime.envId}}" bindinput="onEnvIdInput" />
-    <view class="row">
-      <view class="btn-ghost" bindtap="saveEnvId">保存环境ID</view>
-      <view class="btn-primary" bindtap="checkCloudHealth">检测云函数</view>
+      <view class="row-2col">
+        <view class="btn-ghost" bindtap="saveEnvId">保存环境ID</view>
+        <view class="btn-primary" bindtap="checkCloudHealth">检测云函数</view>
+      </view>
+      <view class="sub mt-12">版本：{{version}}</view>
     </view>
-    <view class="sub mt-12">版本：{{version}}</view>
   </view>
 
   <view class="card" wx:if="{{stats}}">
-    <view class="section-title">当前数据概览</view>
-    <view class="kv">
-      <view class="kv-key">学生总数</view>
-      <view class="kv-value">{{stats.totalStudents}}</view>
-    </view>
-    <view class="kv">
-      <view class="kv-key">课堂记录</view>
-      <view class="kv-value">{{stats.totalLessons}}</view>
-    </view>
-    <view class="kv">
-      <view class="kv-key">本周考试</view>
-      <view class="kv-value">{{stats.weeklyExams}}</view>
-    </view>
-    <view class="kv">
-      <view class="kv-key">薄弱点记录</view>
-      <view class="kv-value">{{stats.weaknessAlerts}}</view>
+    <view class="section-title">数据概览</view>
+    <view class="form-block">
+      <view class="kv"><view class="kv-key">学生总数</view><view class="kv-value">{{stats.totalStudents}}</view></view>
+      <view class="kv"><view class="kv-key">课程记录</view><view class="kv-value">{{stats.totalLessons}}</view></view>
+      <view class="kv"><view class="kv-key">本周进度</view><view class="kv-value">{{stats.weeklyExams}}</view></view>
+      <view class="kv"><view class="kv-key">薄弱点记录</view><view class="kv-value">{{stats.weaknessAlerts}}</view></view>
+      <view class="kv"><view class="kv-key">出勤率</view><view class="kv-value">{{stats.attendanceRate}}%</view></view>
     </view>
   </view>
 
   <view class="card">
     <view class="section-title">数据导出</view>
-    <view class="sub">导出为 CSV 文本并复制到剪贴板，可粘贴到 Excel。</view>
-    <view class="row mt-12">
-      <view class="btn-ghost" bindtap="exportStudents">学生CSV</view>
-      <view class="btn-ghost" bindtap="exportLessons">课堂CSV</view>
-      <view class="btn-ghost" bindtap="exportExams">成绩CSV</view>
+    <view class="form-block">
+      <view class="sub">导出为 CSV 文本并复制到剪贴板，可粘贴到 Excel。</view>
+      <view class="row mt-12">
+        <view class="btn-ghost" bindtap="exportStudents">学生CSV</view>
+        <view class="btn-ghost" bindtap="exportLessons">课程CSV</view>
+        <view class="btn-ghost" bindtap="exportExams">进度CSV</view>
+      </view>
     </view>
   </view>
 
   <view class="card">
     <view class="section-title">运维工具</view>
-    <view class="sub">用于快速回到初始演示数据。</view>
-    <view class="btn-danger mt-12" bindtap="resetDemo">重置示例数据</view>
+    <view class="form-block">
+      <view class="sub">用于快速恢复初始演示数据。</view>
+      <view class="btn-danger mt-12" bindtap="resetDemo">重置示例数据</view>
+    </view>
   </view>
 </view>

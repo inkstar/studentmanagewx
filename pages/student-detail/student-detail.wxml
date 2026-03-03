@@ -8,11 +8,29 @@
   </view>
 
   <view class="card">
+    <view class="section-title">学生档案</view>
+    <view class="form-block">
+      <view class="kv"><view class="kv-key">姓名</view><view class="kv-value">{{student.name}}</view></view>
+      <view class="kv"><view class="kv-key">班级</view><view class="kv-value">{{student.className}}</view></view>
+      <view class="kv"><view class="kv-key">手机号</view><view class="kv-value">{{student.phone || '未填写'}}</view></view>
+      <view class="kv"><view class="kv-key">家长</view><view class="kv-value">{{student.guardian || '未填写'}}</view></view>
+    </view>
+  </view>
+
+  <view class="card">
     <view class="section-title">薄弱点记录</view>
-    <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
-      <view class="picker">标签：{{currentTagName}}</view>
-    </picker>
-    <textarea class="textarea" placeholder="备注（选填）" value="{{weaknessNote}}" bindinput="onWeaknessNoteInput" />
+    <view class="form-block">
+      <view class="field">
+        <view class="field-label">标签</view>
+        <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
+          <view class="picker">{{currentTagName}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <view class="field-label">备注</view>
+        <textarea class="textarea textarea-md" placeholder="例如：计算细节丢分、公式混淆等" value="{{weaknessNote}}" bindinput="onWeaknessNoteInput" />
+      </view>
+    </view>
     <view class="btn-primary" bindtap="addWeakness">新增薄弱点</view>
 
     <view wx:if="{{!weaknessLogs.length}}" class="sub mt-12">暂无记录</view>
@@ -26,27 +44,29 @@
   </view>
 
   <view class="card">
-    <view class="section-title">考试记录</view>
-    <view wx:if="{{!examRecords.length}}" class="sub">暂无考试记录</view>
+    <view class="section-title">学习进度记录</view>
+    <view wx:if="{{!examRecords.length}}" class="sub">暂无学习进度记录</view>
     <view wx:for="{{examRecords}}" wx:key="id" class="list-item">
       <view class="row">
         <text>{{item.examName}}</text>
-        <text class="badge">总分 {{item.totalScore}}</text>
+        <text class="badge">{{item.masteryLevel}}</text>
       </view>
-      <view class="sub mt-8">{{item.examDate}} · 数学{{item.subjectScores.math}} / 英语{{item.subjectScores.english}}</view>
+      <view class="sub mt-8">{{item.examDate}} · 总分 {{item.totalScore}}（数学{{item.subjectScores.math}} / 英语{{item.subjectScores.english}}）</view>
+      <view class="sub">{{item.comment || '无备注'}}</view>
     </view>
   </view>
 
   <view class="card">
-    <view class="section-title">课堂记录</view>
-    <view wx:if="{{!lessonRecords.length}}" class="sub">暂无课堂记录</view>
+    <view class="section-title">课程历史记录</view>
+    <view wx:if="{{!lessonRecords.length}}" class="sub">暂无课程记录</view>
     <view wx:for="{{lessonRecords}}" wx:key="lessonId" class="list-item">
       <view class="row">
-        <text>{{item.lessonDate}}</text>
-        <text class="badge">{{item.attendance}}</text>
+        <text>{{item.lessonDate}} · {{item.subject}}</text>
+        <text class="badge">{{item.status}}</text>
       </view>
-      <view class="sub mt-8">{{item.content || '未填写课程内容'}}</view>
-      <view class="sub">{{item.comment || '无课堂评语'}}</view>
+      <view class="sub mt-8">教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟 · 出勤 {{item.attendance}}</view>
+      <view class="sub">内容：{{item.content || '未填写课程内容'}}</view>
+      <view class="sub">评语：{{item.comment || '无课堂评语'}}</view>
     </view>
   </view>
 </view>

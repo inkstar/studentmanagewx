@@ -1,4 +1,4 @@
-const db = require("../../utils/repository");
+const repo = require("../../utils/repository");
 
 const ATTENDANCE_OPTIONS = ["出勤", "迟到", "缺勤"];
 const LESSON_STATUS = ["已完成", "已取消", "已改期"];
@@ -16,6 +16,8 @@ Page({
     classes: [],
     classIndex: 0,
     currentClassName: "暂无班级",
+    lessons: [],
+    showCreatePanel: false,
     lessonDate: today(),
     subject: "数学",
     teacher: "",
@@ -31,7 +33,7 @@ Page({
 
   onShow() {
     try {
-      const classes = db.getClasses();
+      const classes = repo.getClasses();
       const classIndex = classes.length ? Math.min(this.data.classIndex, classes.length - 1) : 0;
       this.setData({
         fatalError: "",
@@ -40,12 +42,21 @@ Page({
         currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
       });
       this.loadStudentsByClass();
+      this.loadLessons();
     } catch (err) {
       console.error("lesson onShow failed", err);
       this.setData({
         fatalError: "课程页面加载失败，请点击“我的”->“重置示例数据”后重试。"
       });
     }
+  },
+
+  loadLessons() {
+    const classes = this.data.classes;
+    const classId = classes.length ? classes[this.data.classIndex].id : "";
+    this.setData({
+      lessons: repo.getLessons({ classId, limit: 50 })
+    });
   },
 
   loadStudentsByClass() {
@@ -56,7 +67,7 @@ Page({
     }
 
     const classId = classes[this.data.classIndex].id;
-    const students = db.getStudents("").filter((s) => s.classId === classId);
+    const students = repo.getStudents("").filter((s) => s.classId === classId);
     const records = students.map((s) => ({
       studentId: s.id,
       attendance: "出勤",
@@ -64,6 +75,14 @@ Page({
       comment: ""
     }));
     this.setData({ students, records });
+  },
+
+  toggleCreatePanel() {
+    const next = !this.data.showCreatePanel;
+    this.setData({ showCreatePanel: next });
+    if (next) {
+      this.loadStudentsByClass();
+    }
   },
 
   onClassChange(e) {
@@ -74,6 +93,7 @@ Page({
       currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
     });
     this.loadStudentsByClass();
+    this.loadLessons();
   },
 
   onStatusChange(e) {
@@ -132,7 +152,7 @@ Page({
       return;
     }
 
-    db.saveLesson({
+    repo.saveLesson({
       classId: classes[this.data.classIndex].id,
       lessonDate: this.data.lessonDate,
       subject: this.data.subject.trim() || "数学",
@@ -148,6 +168,16 @@ Page({
       }))
     });
 
+    this.setData({
+      showCreatePanel: false,
+      content: "",
+      homework: "",
+      teacher: "",
+      duration: "120",
+      lessonStatusIndex: 0
+    });
+
+    this.loadLessons();
     wx.showToast({ title: "课程已保存", icon: "success" });
   }
 });
