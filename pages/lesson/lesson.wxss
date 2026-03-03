@@ -167,8 +167,11 @@
   line-height: 52rpx;
   text-align: center;
   border-radius: 50%;
-  font-size: 22rpx;
+  font-size: 24rpx;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon-btn.edit {
