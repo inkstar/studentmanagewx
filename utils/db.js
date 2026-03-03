@@ -54,6 +54,19 @@ function getTags() {
 function getStudents(keyword) {
   const db = readDB();
   const classMap = {};
+  const lessonCountMap = {};
+  const examCountMap = {};
+
+  db.lessons.forEach((l) => {
+    (l.records || []).forEach((r) => {
+      lessonCountMap[r.studentId] = (lessonCountMap[r.studentId] || 0) + 1;
+    });
+  });
+
+  db.exams.forEach((e) => {
+    examCountMap[e.studentId] = (examCountMap[e.studentId] || 0) + 1;
+  });
+
   db.classes.forEach((c) => {
     classMap[c.id] = c.name;
   });
@@ -63,7 +76,9 @@ function getStudents(keyword) {
     classId: s.classId,
     className: classMap[s.classId] || "未分班",
     phone: s.phone,
-    guardian: s.guardian
+    guardian: s.guardian,
+    lessonCount: lessonCountMap[s.id] || 0,
+    examCount: examCountMap[s.id] || 0
   }));
   const q = (keyword || "").trim();
   if (!q) {

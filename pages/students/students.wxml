@@ -22,6 +22,7 @@
       <view>
         <view>{{item.name}}</view>
         <view class="sub">{{item.className}} · {{item.phone || '未填写手机号'}}</view>
+        <view class="sub">课堂 {{item.lessonCount}} 次 · 考试 {{item.examCount}} 次</view>
       </view>
       <view class="badge">详情</view>
     </view>
