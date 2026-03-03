@@ -46,9 +46,12 @@ node scripts/sync-from-sqlite.mjs
 - `utils/db.js`：前端数据层与业务查询。
 - `utils/repository.js`：统一数据访问仓储层（预留云开发接入点）。
 - `utils/runtime.js`：运行时配置（角色、数据模式、云环境ID）。
+- `utils/cloudClient.js`：云函数调用封装。
 - `scripts/sync-from-sqlite.mjs`：SQLite 数据同步脚本。
 - `data/student_info.seed.json`：由 SQLite 导出的种子数据。
 - `docs/student_info_db_schema.md`：`student_info.db` 到小程序数据模型的字段映射。
+- `docs/cloud_dev_guide.md`：云开发接入说明。
+- `cloudfunctions/studentManage/`：云函数骨架（待接数据库）。
 - `PLAN.md`：计划与执行进度。
 - `PRD.md`：需求文档。
 

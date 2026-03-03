@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 00:04] Phase 10 - 云函数与客户端调用骨架（Done）
+- 目标：落地云开发接入骨架，补齐云函数目录、客户端调用封装与接入文档，确保后续可平滑切换到真实云数据库。
+- 改动文件：`cloudfunctions/studentManage/*`、`utils/cloudClient.js`、`docs/cloud_dev_guide.md`、`README.md`、`PLAN.md`。
+- 验收标准：项目内存在可部署云函数骨架和客户端调用封装；文档给出从本地模式切换到云模式的操作路径。
+- 风险与回滚：风险为骨架未接真实数据时造成预期落差；回滚方式为 `git revert` 本阶段提交并保留 `LOCAL` 运行模式。
+
 ## [UTC+8 2026-03-04 00:03] Phase 9 - 运行模式与身份流骨架（Done）
 - 目标：建立 `LOCAL/CLOUD` 数据模式切换和 `TEACHER/ADMIN` 身份切换骨架，为后续云函数接入和权限扩展打基础。
 - 改动文件：`utils/runtime.js`、`utils/repository.js`、`app.js`、`pages/profile/*`、`pages/students/*`、`pages/index/index.js`、`pages/lesson/lesson.js`、`pages/scores/scores.js`、`pages/student-detail/student-detail.js`、`utils/exporter.js`、`README.md`、`PLAN.md`。
@@ -56,6 +62,7 @@
 - Phase 7 DB 结构映射文档：Done
 - Phase 8 学生跟进指标增强：Done
 - Phase 9 运行模式与身份流骨架：Done
+- Phase 10 云函数与客户端调用骨架：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -68,6 +75,7 @@
 - 2026-03-03：完成 `student_info.db` 映射文档沉淀并接入 README 导航。
 - 2026-03-03：完成学生列表课堂/考试计数展示，支持老师快速识别跟进状态。
 - 2026-03-04：完成运行配置（角色+数据模式）与仓储层抽象，预留云开发接入路径。
+- 2026-03-04：完成云函数目录与客户端调用封装，新增云开发接入指引文档。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。
