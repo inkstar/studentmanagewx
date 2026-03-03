@@ -54,12 +54,12 @@
 
       <view class="field">
         <view class="field-label">课程内容</view>
-        <input class="input" placeholder="本节课重点内容" value="{{content}}" bindinput="onContentInput" />
+        <textarea class="textarea textarea-lg" placeholder="本节课重点内容（可记录知识点、授课过程、学生反馈）" value="{{content}}" bindinput="onContentInput" />
       </view>
 
       <view class="field">
         <view class="field-label">课后作业</view>
-        <input class="input" placeholder="课后练习与作业安排" value="{{homework}}" bindinput="onHomeworkInput" />
+        <textarea class="textarea textarea-lg" placeholder="课后练习与作业安排（可分条记录）" value="{{homework}}" bindinput="onHomeworkInput" />
       </view>
     </view>
   </view>
@@ -75,7 +75,7 @@
           <view class="badge">{{records[index].attendance}}</view>
         </picker>
       </view>
-      <input class="input mt-12" placeholder="课堂评语（选填）" value="{{records[index].comment}}" bindinput="onCommentInput" data-index="{{index}}" />
+      <textarea class="textarea textarea-md mt-12" placeholder="课堂评语（选填）" value="{{records[index].comment}}" bindinput="onCommentInput" data-index="{{index}}" />
     </view>
   </view>
 

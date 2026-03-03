@@ -142,6 +142,14 @@ page {
   padding: 16rpx 20rpx;
 }
 
+.textarea-lg {
+  min-height: 220rpx;
+}
+
+.textarea-md {
+  min-height: 160rpx;
+}
+
 .btn-primary,
 .btn-ghost,
 .btn-danger {
