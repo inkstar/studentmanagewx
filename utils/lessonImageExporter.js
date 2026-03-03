@@ -1,6 +1,7 @@
 const CANVAS_SIZE = {
   width: 720,
-  height: 1420
+  minHeight: 1420,
+  maxHeight: 2800
 };
 
 function formatDateCN(dateText) {
@@ -180,14 +181,14 @@ function prepareCanvas(page, logicalWidth, logicalHeight, canvasId) {
 function exportLessonImage(page, lesson, options) {
   const canvasId = (options && options.canvasId) || "lessonShareCanvas";
   const width = (options && options.width) || CANVAS_SIZE.width;
-  const height = (options && options.height) || CANVAS_SIZE.height;
+  const workHeight = (options && options.maxHeight) || CANVAS_SIZE.maxHeight;
   const pageX = 22;
   const pageY = 22;
   const pageW = width - pageX * 2;
-  const pageH = height - pageY * 2;
-  const headerH = 166;
+  const headerH = 126;
+  const headerToContentGap = 20;
   const contentX = pageX + 24;
-  const contentY = pageY + headerH - 22;
+  const contentY = pageY + headerH + headerToContentGap;
   const contentW = pageW - 48;
   const teacherText = String(lesson.teacher || lesson.teacherName || lesson.instructor || "").trim() || "未填写";
   const contentText = String(lesson.content || lesson.topic || lesson.learnedTopics || "").trim();
@@ -218,28 +219,60 @@ function exportLessonImage(page, lesson, options) {
 
   wx.showLoading({ title: "生成中..." });
 
-  return prepareCanvas(page, width, height, canvasId)
+  return prepareCanvas(page, width, workHeight, canvasId)
     .then(({ canvas, ctx }) => {
+      const infoTop = contentY;
+      const boxGap = 14;
+      const boxW = (contentW - boxGap) / 2;
+      const boxH = 96;
+      const sectionGap = 20;
+      const sectionTitleBarOffset = 38;
+      const sectionTextLineHeight = 30;
+      const sectionHeaderTextY = 24;
+      const footerH = 84;
+
+      const calcSection = (text, lineCap) => {
+        const plainText = String(text || "").trim();
+        const safeText = plainText || "暂无内容（请先完善课程记录）";
+        const isEmpty = !plainText;
+        applyFontSize(ctx, 22, 400);
+        const lines = wrapTextLines(ctx, safeText, contentW - 32);
+        const wantedLines = Math.min(lineCap || 8, Math.max(2, lines.length));
+        const boxHLocal = isEmpty ? 110 : Math.min(420, 44 + wantedLines * sectionTextLineHeight);
+        return { safeText, isEmpty, wantedLines, boxHLocal };
+      };
+
+      const contentSection = calcSection(contentText, 12);
+      const perfSection = calcSection(performanceText, 10);
+      const homeworkSection = calcSection(homeworkText, 12);
+
+      const infoBottom = infoTop + 3 * boxH + 2 * boxGap;
+      const sec1Y = infoBottom + 22;
+      const sec1Bottom = sec1Y + sectionTitleBarOffset + contentSection.boxHLocal;
+      const sec2Y = sec1Bottom + sectionGap;
+      const sec2Bottom = sec2Y + sectionTitleBarOffset + perfSection.boxHLocal;
+      const sec3Y = sec2Bottom + sectionGap;
+      const sec3Bottom = sec3Y + sectionTitleBarOffset + homeworkSection.boxHLocal;
+      const footerY = sec3Bottom + 24;
+      const pageH = footerY + footerH + 24 - pageY;
+      const exportHeight = Math.max(CANVAS_SIZE.minHeight, Math.min(workHeight, pageY + pageH + 24));
+
       applyFillStyle(ctx, "#f8fafc");
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(0, 0, width, exportHeight);
       drawRoundedBlock(ctx, pageX, pageY, pageW, pageH, 30, "#ffffff", "#edf2f7", 1);
 
       const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
       headGrad.addColorStop(0, "#ff8a4a");
       headGrad.addColorStop(1, "#ff7a38");
-      drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 28, headGrad, null, 0);
+      drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 26, headGrad, null, 0);
 
       applyFillStyle(ctx, "#ffffff");
-      applyFontSize(ctx, 56, 700);
-      ctx.fillText("课程记录与反馈", pageX + 28, pageY + 76);
-      applyFontSize(ctx, 42, 400);
+      applyFontSize(ctx, 44, 700);
+      ctx.fillText("课程记录与反馈", pageX + 28, pageY + 62);
+      applyFontSize(ctx, 28, 400);
       applyFillStyle(ctx, "rgba(255,255,255,0.92)");
-      ctx.fillText("Lesson Record & Feedback", pageX + 28, pageY + 118);
+      ctx.fillText("Lesson Record & Feedback", pageX + 28, pageY + 98);
 
-      const infoTop = contentY;
-      const boxGap = 14;
-      const boxW = (contentW - boxGap) / 2;
-      const boxH = 96;
       infoRows.forEach((row, idx) => {
         const col = idx % 2;
         const r = Math.floor(idx / 2);
@@ -262,45 +295,33 @@ function exportLessonImage(page, lesson, options) {
         });
       });
 
-      const drawSection = (y, title, text, lineCap) => {
-        const plainText = String(text || "").trim();
-        const safeText = plainText || "暂无内容（请先完善课程记录）";
-        const isEmpty = !plainText;
-
+      const drawSection = (y, title, sectionData) => {
         applyFillStyle(ctx, "#ff7a38");
         applyFontSize(ctx, 34, 700);
-        ctx.fillText("|", contentX, y + 24);
+        ctx.fillText("|", contentX, y + sectionHeaderTextY);
         applyFillStyle(ctx, "#ff7a38");
         applyFontSize(ctx, 30, 700);
-        ctx.fillText(title, contentX + 20, y + 24);
+        ctx.fillText(title, contentX + 20, y + sectionHeaderTextY);
 
-        const boxY = y + 38;
-        applyFontSize(ctx, 22, 400);
-        const lines = wrapTextLines(ctx, safeText, contentW - 32);
-        const wantedLines = Math.min(lineCap || 8, Math.max(2, lines.length));
-        const boxHLocal = isEmpty ? 110 : Math.min(230, 44 + wantedLines * 30);
-        drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
+        const boxY = y + sectionTitleBarOffset;
+        drawRoundedBlock(ctx, contentX, boxY, contentW, sectionData.boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
 
         applyFillStyle(ctx, "#4b5563");
         applyFontSize(ctx, 22, 400);
         drawParagraph(ctx, {
-          text: safeText,
+          text: sectionData.safeText,
           x: contentX + 16,
           y: boxY + 32,
           maxWidth: contentW - 32,
-          lineHeight: 30,
-          maxLines: isEmpty ? 2 : wantedLines
+          lineHeight: sectionTextLineHeight,
+          maxLines: sectionData.isEmpty ? 2 : sectionData.wantedLines
         });
-        return boxY + boxHLocal + 20;
       };
 
-      let cursorY = infoTop + 3 * (boxH + boxGap) + 22;
-      cursorY = drawSection(cursorY, "课程内容", contentText, 6);
-      cursorY = drawSection(cursorY, "学生情况", performanceText, 5);
-      cursorY = drawSection(cursorY, "课后作业", homeworkText, 6);
+      drawSection(sec1Y, "课程内容", contentSection);
+      drawSection(sec2Y, "学生情况", perfSection);
+      drawSection(sec3Y, "课后作业", homeworkSection);
 
-      const footerH = 84;
-      const footerY = pageY + pageH - footerH;
       drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#f1f5f9", 1);
       applyFillStyle(ctx, "#9ca3af");
       applyFontSize(ctx, 18, 400);
@@ -315,9 +336,9 @@ function exportLessonImage(page, lesson, options) {
               x: 0,
               y: 0,
               width,
-              height,
+              height: exportHeight,
               destWidth: width * 2,
-              destHeight: height * 2,
+              destHeight: exportHeight * 2,
               fileType: "png",
               quality: 1,
               success: resolve,
@@ -342,4 +363,3 @@ function exportLessonImage(page, lesson, options) {
 module.exports = {
   exportLessonImage
 };
-
