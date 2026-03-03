@@ -45,6 +45,7 @@ node scripts/sync-from-sqlite.mjs
 - `utils/db.js`：前端数据层与业务查询。
 - `scripts/sync-from-sqlite.mjs`：SQLite 数据同步脚本。
 - `data/student_info.seed.json`：由 SQLite 导出的种子数据。
+- `docs/student_info_db_schema.md`：`student_info.db` 到小程序数据模型的字段映射。
 - `PLAN.md`：计划与执行进度。
 - `PRD.md`：需求文档。
 

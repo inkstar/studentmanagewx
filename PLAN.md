@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-03 23:04] Phase 7 - DB 结构映射文档沉淀（Done）
+- 目标：沉淀 `student_info.db` 到小程序模型的字段映射文档，降低后续数据库变更的维护成本。
+- 改动文件：`docs/student_info_db_schema.md`、`README.md`、`PLAN.md`。
+- 验收标准：文档明确 `student/lesson/progress_record` 到 `students/lessons/exams/tags/weaknessLogs` 的映射规则，并给出同步命令。
+- 风险与回滚：风险为文档与脚本不一致；回滚方式为 `git revert` 本阶段提交并按脚本实际行为修正文档。
+
 ## [UTC+8 2026-03-03 23:02] Phase 6 - CSV 导出能力补齐（Done）
 - 目标：补齐学生、课堂、成绩数据的 CSV 导出能力，支持老师快速对外汇报与归档。
 - 改动文件：`utils/exporter.js`、`pages/profile/profile.js`、`pages/profile/profile.wxml`、`utils/db.js`、`README.md`、`PLAN.md`。
@@ -35,6 +41,7 @@
 - Phase 4 小程序骨架：Done
 - Phase 5 SQLite 接入与业务联动：Done
 - Phase 6 CSV 导出能力：Done
+- Phase 7 DB 结构映射文档：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -44,6 +51,7 @@
 - 2026-03-03：完成小程序运行骨架搭建并修复 `app.json` 缺失问题。
 - 2026-03-03：完成 `student_info.db` 同步脚本与 DB 数据映射，业务页面联调通过。
 - 2026-03-03：完成 CSV 导出能力（学生/课堂/成绩）并接入“我的”页面。
+- 2026-03-03：完成 `student_info.db` 映射文档沉淀并接入 README 导航。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。
