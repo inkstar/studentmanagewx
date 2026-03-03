@@ -15,18 +15,53 @@
 
   <view class="card">
     <view class="section-title">课程信息</view>
-    <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
-      <view class="picker">班级：{{currentClassName}}</view>
-    </picker>
-    <input class="input" placeholder="上课日期，如 2026-03-03" value="{{lessonDate}}" bindinput="onDateInput" />
-    <input class="input" placeholder="科目（如 数学）" value="{{subject}}" bindinput="onSubjectInput" />
-    <input class="input" placeholder="授课老师" value="{{teacher}}" bindinput="onTeacherInput" />
-    <input class="input" type="number" placeholder="时长（分钟）" value="{{duration}}" bindinput="onDurationInput" />
-    <picker mode="selector" range="{{lessonStatusOptions}}" value="{{lessonStatusIndex}}" bindchange="onStatusChange">
-      <view class="picker">状态：{{lessonStatusOptions[lessonStatusIndex]}}</view>
-    </picker>
-    <input class="input" placeholder="本节课内容" value="{{content}}" bindinput="onContentInput" />
-    <input class="input" placeholder="课后作业" value="{{homework}}" bindinput="onHomeworkInput" />
+    <view class="form-block">
+      <view class="field">
+        <view class="field-label">班级</view>
+        <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
+          <view class="picker">{{currentClassName}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field-label">上课日期</view>
+        <input class="input" placeholder="如 2026-03-03" value="{{lessonDate}}" bindinput="onDateInput" />
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">科目</view>
+          <input class="input" placeholder="如 数学" value="{{subject}}" bindinput="onSubjectInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">授课老师</view>
+          <input class="input" placeholder="老师姓名" value="{{teacher}}" bindinput="onTeacherInput" />
+        </view>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">时长（分钟）</view>
+          <input class="input" type="number" placeholder="120" value="{{duration}}" bindinput="onDurationInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">课程状态</view>
+          <picker mode="selector" range="{{lessonStatusOptions}}" value="{{lessonStatusIndex}}" bindchange="onStatusChange">
+            <view class="picker">{{lessonStatusOptions[lessonStatusIndex]}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">课程内容</view>
+        <input class="input" placeholder="本节课重点内容" value="{{content}}" bindinput="onContentInput" />
+      </view>
+
+      <view class="field">
+        <view class="field-label">课后作业</view>
+        <input class="input" placeholder="课后练习与作业安排" value="{{homework}}" bindinput="onHomeworkInput" />
+      </view>
+    </view>
   </view>
 
   <view class="card">
@@ -44,5 +79,7 @@
     </view>
   </view>
 
-  <view class="btn-primary" bindtap="saveLesson">保存课程记录</view>
+  <view class="action-bar">
+    <view class="btn-primary" bindtap="saveLesson">保存课程记录</view>
+  </view>
 </view>

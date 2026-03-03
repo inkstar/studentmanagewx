@@ -10,24 +10,64 @@
 
   <view class="card">
     <view class="section-title">进度录入</view>
-    <picker mode="selector" range="{{students}}" range-key="name" value="{{studentIndex}}" bindchange="onStudentChange">
-      <view class="picker">学生：{{currentStudentName}}</view>
-    </picker>
-    <input class="input" placeholder="测验名称" value="{{form.examName}}" data-key="examName" bindinput="onFormInput" />
-    <input class="input" placeholder="测验日期，如 2026-03-03" value="{{form.examDate}}" data-key="examDate" bindinput="onFormInput" />
-    <picker mode="selector" range="{{masteryOptions}}" value="{{masteryIndex}}" bindchange="onMasteryChange">
-      <view class="picker">掌握程度：{{masteryOptions[masteryIndex]}}</view>
-    </picker>
-    <view class="row-2col">
-      <input class="input" type="number" placeholder="数学分" value="{{form.math}}" data-key="math" bindinput="onFormInput" />
-      <input class="input" type="number" placeholder="英语分" value="{{form.english}}" data-key="english" bindinput="onFormInput" />
+    <view class="form-block">
+      <view class="field">
+        <view class="field-label">学生</view>
+        <picker mode="selector" range="{{students}}" range-key="name" value="{{studentIndex}}" bindchange="onStudentChange">
+          <view class="picker">{{currentStudentName}}</view>
+        </picker>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">测验名称</view>
+          <input class="input" placeholder="阶段测验/周测" value="{{form.examName}}" data-key="examName" bindinput="onFormInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">测验日期</view>
+          <input class="input" placeholder="2026-03-03" value="{{form.examDate}}" data-key="examDate" bindinput="onFormInput" />
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">掌握程度</view>
+        <picker mode="selector" range="{{masteryOptions}}" value="{{masteryIndex}}" bindchange="onMasteryChange">
+          <view class="picker">{{masteryOptions[masteryIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">数学分</view>
+          <input class="input" type="number" placeholder="0-150" value="{{form.math}}" data-key="math" bindinput="onFormInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">英语分</view>
+          <input class="input" type="number" placeholder="0-150" value="{{form.english}}" data-key="english" bindinput="onFormInput" />
+        </view>
+      </view>
+
+      <view class="row-2col">
+        <view class="field" style="flex:1;">
+          <view class="field-label">总分</view>
+          <input class="input" type="number" placeholder="总分" value="{{form.total}}" data-key="total" bindinput="onFormInput" />
+        </view>
+        <view class="field" style="flex:1;">
+          <view class="field-label">薄弱点标签</view>
+          <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
+            <view class="picker">{{currentTagName}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field-label">备注</view>
+        <textarea class="textarea" placeholder="记录表现、错误原因、改进建议" value="{{form.comment}}" data-key="comment" bindinput="onFormInput" />
+      </view>
     </view>
-    <input class="input" type="number" placeholder="总分" value="{{form.total}}" data-key="total" bindinput="onFormInput" />
-    <picker mode="selector" range="{{tags}}" range-key="name" value="{{tagIndex}}" bindchange="onTagChange">
-      <view class="picker">关联薄弱点：{{currentTagName}}</view>
-    </picker>
-    <textarea class="textarea" placeholder="备注（选填）" value="{{form.comment}}" data-key="comment" bindinput="onFormInput" />
-    <view class="btn-primary" bindtap="saveExam">保存学习进度</view>
+    <view class="action-bar">
+      <view class="btn-primary" bindtap="saveExam">保存学习进度</view>
+    </view>
   </view>
 
   <view class="card">
