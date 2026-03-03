@@ -1,4 +1,9 @@
-const DBSeedFromSQLite = require("../data/student_info.seed.json");
+let DBSeedFromSQLite = null;
+try {
+  DBSeedFromSQLite = require("../data/student_info.seed.json");
+} catch (err) {
+  console.warn("load sqlite seed failed, fallback to default seed", err);
+}
 const KEY = "student_manage_db_v2";
 
 function createSeedData() {
@@ -16,13 +21,31 @@ function createSeedData() {
   };
 }
 
+function normalizeDB(data) {
+  const normalized = data && typeof data === "object" ? data : {};
+  normalized.classes = Array.isArray(normalized.classes) ? normalized.classes : [];
+  normalized.subjects = Array.isArray(normalized.subjects) ? normalized.subjects : [];
+  normalized.tags = Array.isArray(normalized.tags) ? normalized.tags : [];
+  normalized.students = Array.isArray(normalized.students) ? normalized.students : [];
+  normalized.lessons = Array.isArray(normalized.lessons) ? normalized.lessons : [];
+  normalized.exams = Array.isArray(normalized.exams) ? normalized.exams : [];
+  normalized.weaknessLogs = Array.isArray(normalized.weaknessLogs) ? normalized.weaknessLogs : [];
+  return normalized;
+}
+
 function uid(prefix) {
   return prefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 }
 
 function readDB() {
-  const data = wx.getStorageSync(KEY);
-  if (!data) {
+  const raw = wx.getStorageSync(KEY);
+  if (!raw) {
+    const seed = createSeedData();
+    wx.setStorageSync(KEY, seed);
+    return seed;
+  }
+  const data = normalizeDB(raw);
+  if (!data.classes.length && !data.students.length && !data.lessons.length && !data.exams.length) {
     const seed = createSeedData();
     wx.setStorageSync(KEY, seed);
     return seed;
@@ -31,7 +54,7 @@ function readDB() {
 }
 
 function writeDB(data) {
-  wx.setStorageSync(KEY, data);
+  wx.setStorageSync(KEY, normalizeDB(data));
 }
 
 function getRawDB() {

@@ -1,4 +1,9 @@
 <view class="container">
+  <view class="card" wx:if="{{fatalError}}">
+    <view class="title">页面错误</view>
+    <view class="sub">{{fatalError}}</view>
+  </view>
+
   <view class="card">
     <view class="title">课堂登记</view>
     <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">

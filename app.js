@@ -6,7 +6,11 @@ App({
     role: "TEACHER"
   },
   onLaunch() {
-    db.getClasses();
+    try {
+      db.getClasses();
+    } catch (err) {
+      console.error("db bootstrap failed", err);
+    }
     console.log("学生管理小程序启动");
   }
 });

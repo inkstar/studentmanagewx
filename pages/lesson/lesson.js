@@ -11,6 +11,7 @@ function today() {
 
 Page({
   data: {
+    fatalError: "",
     classes: [],
     classIndex: 0,
     currentClassName: "暂无班级",
@@ -23,14 +24,22 @@ Page({
   },
 
   onShow() {
-    const classes = db.getClasses();
-    const classIndex = classes.length ? Math.min(this.data.classIndex, classes.length - 1) : 0;
-    this.setData({
-      classes,
-      classIndex,
-      currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
-    });
-    this.loadStudentsByClass();
+    try {
+      const classes = db.getClasses();
+      const classIndex = classes.length ? Math.min(this.data.classIndex, classes.length - 1) : 0;
+      this.setData({
+        fatalError: "",
+        classes,
+        classIndex,
+        currentClassName: classes.length ? classes[classIndex].name : "暂无班级"
+      });
+      this.loadStudentsByClass();
+    } catch (err) {
+      console.error("lesson onShow failed", err);
+      this.setData({
+        fatalError: "课堂页面加载失败，请点击“我的”->“重置示例数据”后重试。"
+      });
+    }
   },
 
   loadStudentsByClass() {
