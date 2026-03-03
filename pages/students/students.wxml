@@ -3,7 +3,7 @@
     <view class="student-title">学生管理</view>
     <view class="header-actions">
       <view class="header-icon" bindtap="exportStudents">导</view>
-      <view class="header-icon primary" wx:if="{{canManage}}" bindtap="startCreate">+</view>
+      <view class="header-icon primary" wx:if="{{canManage || canBootstrap}}" bindtap="startCreate">+</view>
     </view>
   </view>
 
@@ -55,9 +55,10 @@
   <view class="empty" wx:if="{{!filteredStudents.length}}">
     <view class="empty-icon">学生</view>
     <view class="empty-text">暂无学生数据</view>
+    <view class="empty-text" wx:if="{{!canManage && canBootstrap}}">当前为首次初始化，可先新增首位学生</view>
   </view>
 
-  <view class="fab" wx:if="{{canManage}}" bindtap="startCreate">+</view>
+  <view class="fab" wx:if="{{canManage || canBootstrap}}" bindtap="startCreate">+</view>
 
   <view class="mask" wx:if="{{isFilterOpen}}" bindtap="closeFilterPanel">
     <view class="filter-panel" catchtap="stopTap">
@@ -94,7 +95,7 @@
   </view>
 </view>
 
-<view class="container" wx:if="{{showCreatePanel && canManage}}">
+<view class="container" wx:if="{{showCreatePanel && (canManage || canBootstrap)}}">
   <view class="hero">
     <view class="hero-title">{{isEditMode ? '编辑学生' : '新增学生'}}</view>
     <view class="hero-sub">录入学生档案与联系方式，支持薄弱知识点标签。</view>

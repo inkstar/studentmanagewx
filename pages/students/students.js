@@ -73,6 +73,7 @@ Page({
     classTypes: [],
 
     canManage: true,
+    canBootstrap: false,
 
     filters: {
       grade: "全部",
@@ -135,7 +136,8 @@ Page({
       classTypeIndex,
       currentGrade: grades[gradeIndex] || "高一",
       currentClassType: classTypes[classTypeIndex] || "1v1",
-      students
+      students,
+      canBootstrap: students.length === 0
     });
 
     this.applyFilters();
