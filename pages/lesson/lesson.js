@@ -592,6 +592,7 @@ Page({
     const lessonId = e.currentTarget.dataset.id;
     const lesson = this.data.lessons.find((item) => item.id === lessonId);
     if (!lesson) {
+      wx.showToast({ title: "未找到课程记录", icon: "none" });
       return;
     }
 
@@ -732,19 +733,29 @@ Page({
     ctx.fillText("生成时间: " + ts, pageX + 28, footerY + 26);
     ctx.fillText("学生课程管理系统 v1.0", pageX + 28, footerY + 50);
 
+    wx.showLoading({ title: "生成中..." });
     ctx.draw(false, () => {
-      wx.canvasToTempFilePath(
-        {
-          canvasId: "lessonShareCanvas",
-          success: (res) => {
-            wx.previewImage({ urls: [res.tempFilePath] });
+      setTimeout(() => {
+        wx.canvasToTempFilePath(
+          {
+            canvasId: "lessonShareCanvas",
+            success: (res) => {
+              wx.hideLoading();
+              wx.previewImage({ urls: [res.tempFilePath] });
+            },
+            fail: (err) => {
+              wx.hideLoading();
+              console.error("exportLessonImage canvasToTempFilePath failed", err);
+              wx.showModal({
+                title: "导出失败",
+                content: "请升级基础库或点击清缓存后重试。",
+                showCancel: false
+              });
+            }
           },
-          fail: () => {
-            wx.showToast({ title: "导出失败", icon: "none" });
-          }
-        },
-        this
-      );
+          this
+        );
+      }, 120);
     });
   }
 });
