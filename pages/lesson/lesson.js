@@ -701,13 +701,18 @@ Page({
     const contentX = pageX + 24;
     const contentY = pageY + headerH - 24;
     const contentW = pageW - 48;
+    const teacherText = String(lesson.teacher || lesson.teacherName || lesson.instructor || "").trim() || "未填写";
+    const contentText = String(lesson.content || lesson.topic || lesson.learnedTopics || "").trim();
+    const performanceText = String(lesson.studentPerformance || lesson.comment || lesson.notes || "").trim();
+    const homeworkText = String(lesson.homework || "").trim();
+
     const infoRows = [
       ["学生姓名", lesson.studentName || "-"],
       ["课程日期", formatDateCN(lesson.lessonDate)],
       ["上课时间", (lesson.startTime || "--:--") + " - " + (lesson.endTime || "--:--")],
       ["科目", lesson.subject || "数学"],
       ["课程时长", String(lesson.duration || 120) + "分钟"],
-      ["授课老师", lesson.teacher || "-"]
+      ["授课老师", teacherText]
     ];
     const now = new Date();
     const ts =
@@ -772,38 +777,39 @@ Page({
           });
         });
 
-        const drawSection = (y, icon, title, text, lineCap) => {
+        const drawSection = (y, title, text, lineCap) => {
+          const plainText = String(text || "").trim();
+          const safeText = plainText || "暂无内容（请先完善课程记录）";
+          const isEmpty = !plainText;
+
           applyFillStyle(ctx, "#ff7a38");
           applyFontSize(ctx, 30, 700);
           ctx.fillText("|", contentX, y + 24);
-          applyFillStyle(ctx, "#111827");
-          applyFontSize(ctx, 28, 400);
-          ctx.fillText(icon, contentX + 18, y + 24);
           applyFillStyle(ctx, "#ff7a38");
           applyFontSize(ctx, 31, 700);
-          ctx.fillText(title, contentX + 54, y + 24);
+          ctx.fillText(title, contentX + 22, y + 24);
 
           const boxY = y + 38;
-          const boxHLocal = 166;
+          const boxHLocal = isEmpty ? 120 : 166;
           drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
 
           applyFillStyle(ctx, "#4b5563");
           applyFontSize(ctx, 22, 400);
           drawParagraph(ctx, {
-            text: text || "暂无内容",
+            text: safeText,
             x: contentX + 16,
             y: boxY + 32,
             maxWidth: contentW - 32,
             lineHeight: 30,
-            maxLines: lineCap
+            maxLines: isEmpty ? 2 : lineCap
           });
           return boxY + boxHLocal + 20;
         };
 
         let cursorY = infoTop + 3 * (boxH + boxGap) + 24;
-        cursorY = drawSection(cursorY, "📚", "课程内容", lesson.content, 4);
-        cursorY = drawSection(cursorY, "👨‍🎓", "学生情况", lesson.studentPerformance || lesson.comment || "", 4);
-        cursorY = drawSection(cursorY, "📝", "课后作业", lesson.homework, 4);
+        cursorY = drawSection(cursorY, "课程内容", contentText, 4);
+        cursorY = drawSection(cursorY, "学生情况", performanceText, 4);
+        cursorY = drawSection(cursorY, "课后作业", homeworkText, 4);
 
         const footerH = 84;
         const footerY = pageY + pageH - footerH;
