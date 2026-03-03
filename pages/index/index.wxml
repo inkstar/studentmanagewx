@@ -1,48 +1,84 @@
-<view class="container">
-  <view class="hero">
-    <view class="hero-title">教学仪表盘</view>
-    <view class="hero-sub">参考课程管理模板重构：聚合学生、课程、出勤率和学习进度分布。</view>
-    <view class="chip-row">
-      <view class="chip">学生 {{stats.totalStudents}}</view>
-      <view class="chip">课程 {{stats.totalLessons}}</view>
-      <view class="chip">出勤率 {{stats.attendanceRate}}%</view>
+<view class="container dashboard-page">
+  <view class="dashboard-header">
+    <view>
+      <view class="dash-title">仪表盘</view>
+      <view class="dash-time">更新时间: {{updatedAt}}</view>
+    </view>
+    <view class="profile-dot-wrap">
+      <view class="profile-dot"></view>
+      <view class="profile-online"></view>
     </view>
   </view>
 
-  <view class="card">
-    <view class="section-title">核心统计</view>
-    <view class="grid">
-      <view class="stat">
-        <view class="sub">学生总数</view>
-        <view class="stat-num">{{stats.totalStudents}}</view>
-      </view>
-      <view class="stat">
-        <view class="sub">课程记录</view>
-        <view class="stat-num">{{stats.totalLessons}}</view>
-      </view>
-      <view class="stat">
-        <view class="sub">本周进度</view>
-        <view class="stat-num">{{stats.weeklyExams}}</view>
-      </view>
-      <view class="stat">
-        <view class="sub">薄弱点记录</view>
-        <view class="stat-num">{{stats.weaknessAlerts}}</view>
+  <view class="dash-grid">
+    <view class="dash-stat dash-indigo" bindtap="goStudents">
+      <view class="dash-icon">学生</view>
+      <view class="dash-num">{{stats.totalStudents}}</view>
+      <view class="dash-label">学生总数</view>
+    </view>
+    <view class="dash-stat dash-blue" bindtap="goLessons">
+      <view class="dash-icon">课程</view>
+      <view class="dash-num">{{stats.totalLessons}}</view>
+      <view class="dash-label">总课程数</view>
+    </view>
+    <view class="dash-stat dash-purple" bindtap="goLessons">
+      <view class="dash-icon">反馈</view>
+      <view class="dash-num">{{completedLessons}}</view>
+      <view class="dash-label">已完成反馈</view>
+    </view>
+    <view class="dash-stat dash-deep" bindtap="goScores">
+      <view class="dash-icon">计划</view>
+      <view class="dash-num">{{thisMonthLessons}}</view>
+      <view class="dash-label">本月计划</view>
+    </view>
+  </view>
+
+  <view class="card dashboard-card">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">反馈率统计</view>
+      <view class="rate-tag {{attendanceRate >= 80 ? 'good' : 'warn'}}">{{attendanceRate >= 80 ? '良好' : '待提升'}}</view>
+    </view>
+    <view class="ring-wrap">
+      <view class="ring-value">{{attendanceRate}}%</view>
+      <view class="ring-sub">完成比</view>
+    </view>
+    <view class="progress-track mt-12">
+      <view class="progress-fill" style="width: {{attendanceRate}}%;"></view>
+    </view>
+  </view>
+
+  <view class="card dashboard-card">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">学生进度分布</view>
+      <view class="sub">{{stats.totalStudents}} 人</view>
+    </view>
+    <view class="dist-list">
+      <view class="dist-item" wx:for="{{distribution}}" wx:key="name">
+        <view class="row">
+          <view class="dist-name">{{item.name}}</view>
+          <view class="dist-count">{{item.count}} 人</view>
+        </view>
+        <view class="dist-track">
+          <view class="dist-fill" style="width: {{item.percent}}%; background: {{item.color}};"></view>
+        </view>
       </view>
     </view>
   </view>
 
-  <view class="card">
-    <view class="section-title">掌握程度分布</view>
-    <view class="kv"><view class="kv-key">优秀</view><view class="kv-value">{{progressDistribution.excellent}}</view></view>
-    <view class="kv"><view class="kv-key">良好</view><view class="kv-value">{{progressDistribution.good}}</view></view>
-    <view class="kv"><view class="kv-key">一般</view><view class="kv-value">{{progressDistribution.fair}}</view></view>
-    <view class="kv"><view class="kv-key">薄弱</view><view class="kv-value">{{progressDistribution.weak}}</view></view>
-  </view>
-
-  <view class="card" wx:if="{{latestLesson}}">
-    <view class="section-title">最近课程</view>
-    <view class="kv"><view class="kv-key">日期</view><view class="kv-value">{{latestLesson.lessonDate}}</view></view>
-    <view class="kv"><view class="kv-key">主题</view><view class="kv-value">{{latestLesson.content || '未填写'}}</view></view>
-    <view class="kv"><view class="kv-key">出勤/迟到/缺勤</view><view class="kv-value">{{latestLesson.present}} / {{latestLesson.late}} / {{latestLesson.absent}}</view></view>
+  <view class="card recent-card">
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">最近课程反馈</view>
+      <view class="recent-link" bindtap="goLessons">查看全部</view>
+    </view>
+    <view class="recent-inner" bindtap="goLessons">
+      <view class="row">
+        <view>
+          <view class="recent-name">{{latestLesson ? (latestLesson.classId || '最近课程') : '暂无记录'}}</view>
+          <view class="recent-date">{{latestLesson ? latestLesson.lessonDate : '-'}}</view>
+        </view>
+        <view class="recent-badge">最近</view>
+      </view>
+      <view class="recent-content">{{latestLesson ? (latestLesson.content || '还没有课程反馈记录，快去新增一条吧！') : '还没有课程反馈记录，快去新增一条吧！'}}</view>
+    </view>
   </view>
 </view>

@@ -1,6 +1,8 @@
 const repo = require("../../utils/repository");
 const exporter = require("../../utils/exporter");
 
+const STATUS_OPTIONS = ["全部", "在读", "重点关注", "待跟进"];
+
 function topWeakTags(raw, student) {
   const fromProfile = Array.isArray(student.weakTopics) ? student.weakTopics.slice(0, 3) : [];
   if (fromProfile.length) {
@@ -31,133 +33,177 @@ function topWeakTags(raw, student) {
     .map((x) => x.name);
 }
 
+function inferStatus(student) {
+  const weakCount = (student.weakTags || []).length;
+  if (weakCount >= 3) {
+    return "重点关注";
+  }
+  if (Number(student.lessonCount || 0) > 0) {
+    return "在读";
+  }
+  return "待跟进";
+}
+
+function avatarOf(name) {
+  const raw = String(name || "").trim();
+  return raw ? raw.slice(0, 1) : "?";
+}
+
+function emptyForm() {
+  return {
+    name: "",
+    homeroomTeacher: "",
+    phone: "",
+    parentPhone: "",
+    email: "",
+    address: "",
+    notes: "",
+    weakTopicsText: "",
+    guardian: ""
+  };
+}
+
 Page({
   data: {
-    keyword: "",
+    searchTerm: "",
     students: [],
+    filteredStudents: [],
+
     grades: [],
     classTypes: [],
-    gradeFilterOptions: ["全部"],
-    filterGradeIndex: 0,
+
+    canManage: true,
+
+    filters: {
+      grade: "全部",
+      type: "全部",
+      status: "全部"
+    },
+    tempFilters: {
+      grade: "全部",
+      type: "全部",
+      status: "全部"
+    },
+    isFilterOpen: false,
+    statusOptions: STATUS_OPTIONS,
+
+    showCreatePanel: false,
+    isEditMode: false,
+    editingStudentId: "",
+
     gradeIndex: 0,
     classTypeIndex: 0,
     currentGrade: "高一",
     currentClassType: "1v1",
-    canManage: true,
-    showCreatePanel: false,
-    isEditMode: false,
-    editingStudentId: "",
+
     importText: "",
-    form: {
-      name: "",
-      homeroomTeacher: "",
-      phone: "",
-      parentPhone: "",
-      email: "",
-      address: "",
-      notes: "",
-      weakTopicsText: "",
-      guardian: ""
-    }
+    form: emptyForm()
   },
 
   onShow() {
     const app = getApp();
-    this.setData({
-      canManage: app.globalData.role === "ADMIN"
-    });
+    this.setData({ canManage: app.globalData.role === "ADMIN" });
     this.refresh();
   },
 
   refresh() {
     const grades = repo.getGradeOptions();
     const classTypes = repo.getClassTypeOptions();
-    const gradeFilterOptions = ["全部"].concat(grades);
-    const filterGradeIndex = Math.min(this.data.filterGradeIndex, gradeFilterOptions.length - 1);
     const gradeIndex = Math.min(this.data.gradeIndex, Math.max(0, grades.length - 1));
     const classTypeIndex = Math.min(this.data.classTypeIndex, Math.max(0, classTypes.length - 1));
-    const selectedGrade = gradeFilterOptions[filterGradeIndex];
 
-    const rawStudents = repo.getStudents({
-      keyword: this.data.keyword,
-      grade: selectedGrade === "全部" ? "" : selectedGrade
-    });
+    const rawStudents = repo.getStudents({ keyword: "", grade: "" });
     const raw = repo.getRawDB();
-    const students = rawStudents.map((s) => ({
-      ...s,
-      weakTags: topWeakTags(raw, s)
-    }));
+    const students = rawStudents.map((s) => {
+      const weakTags = topWeakTags(raw, s);
+      const total = Number(s.lessonCount || 0) + Number(s.examCount || 0) + weakTags.length;
+      const progressPercent = total ? Math.round(((Number(s.lessonCount || 0) + Number(s.examCount || 0)) / total) * 100) : 0;
+      const status = inferStatus({ ...s, weakTags });
+      return {
+        ...s,
+        weakTags,
+        status,
+        progressPercent,
+        avatar: avatarOf(s.name)
+      };
+    });
 
     this.setData({
       grades,
       classTypes,
-      gradeFilterOptions,
-      filterGradeIndex,
       gradeIndex,
       classTypeIndex,
       currentGrade: grades[gradeIndex] || "高一",
       currentClassType: classTypes[classTypeIndex] || "1v1",
       students
     });
+
+    this.applyFilters();
   },
 
-  toggleCreatePanel() {
+  applyFilters() {
+    const search = String(this.data.searchTerm || "").trim().toLowerCase();
+    const filters = this.data.filters;
+    const filteredStudents = this.data.students.filter((s) => {
+      const hitSearch =
+        !search ||
+        String(s.name || "").toLowerCase().indexOf(search) >= 0 ||
+        String(s.homeroomTeacher || "").toLowerCase().indexOf(search) >= 0 ||
+        String(s.phone || "").toLowerCase().indexOf(search) >= 0;
+      const hitGrade = filters.grade === "全部" || s.grade === filters.grade;
+      const hitType = filters.type === "全部" || s.classType === filters.type;
+      const hitStatus = filters.status === "全部" || s.status === filters.status;
+      return hitSearch && hitGrade && hitType && hitStatus;
+    });
+    this.setData({ filteredStudents });
+  },
+
+  onSearchInput(e) {
+    this.setData({ searchTerm: e.detail.value });
+    this.applyFilters();
+  },
+
+  openFilterPanel() {
     this.setData({
-      showCreatePanel: !this.data.showCreatePanel,
-      isEditMode: false,
-      editingStudentId: "",
-      form: {
-        name: "",
-        homeroomTeacher: "",
-        phone: "",
-        parentPhone: "",
-        email: "",
-        address: "",
-        notes: "",
-        weakTopicsText: "",
-        guardian: ""
-      }
+      isFilterOpen: true,
+      tempFilters: { ...this.data.filters }
     });
   },
 
-  startCreate() {
+  closeFilterPanel() {
+    this.setData({ isFilterOpen: false });
+  },
+
+  stopTap() {},
+
+  setTempGrade(e) {
+    this.setData({ "tempFilters.grade": e.currentTarget.dataset.value });
+  },
+
+  setTempType(e) {
+    this.setData({ "tempFilters.type": e.currentTarget.dataset.value });
+  },
+
+  setTempStatus(e) {
+    this.setData({ "tempFilters.status": e.currentTarget.dataset.value });
+  },
+
+  applyFilterPanel() {
     this.setData({
-      showCreatePanel: true,
-      isEditMode: false,
-      editingStudentId: "",
-      form: {
-        name: "",
-        homeroomTeacher: "",
-        phone: "",
-        parentPhone: "",
-        email: "",
-        address: "",
-        notes: "",
-        weakTopicsText: "",
-        guardian: ""
-      }
+      filters: { ...this.data.tempFilters },
+      isFilterOpen: false
     });
+    this.applyFilters();
   },
 
-  onKeywordInput(e) {
-    this.setData({ keyword: e.detail.value });
-    this.refresh();
-  },
-
-  onFilterGradeChange(e) {
-    this.setData({ filterGradeIndex: Number(e.detail.value) });
-    this.refresh();
-  },
-
-  onFormInput(e) {
-    const key = e.currentTarget.dataset.key;
+  resetFilters() {
+    const base = { grade: "全部", type: "全部", status: "全部" };
     this.setData({
-      ["form." + key]: e.detail.value
+      filters: base,
+      tempFilters: base,
+      isFilterOpen: false
     });
-  },
-
-  onImportTextInput(e) {
-    this.setData({ importText: e.detail.value });
+    this.applyFilters();
   },
 
   onGradeChange(e) {
@@ -178,10 +224,35 @@ Page({
     });
   },
 
+  onFormInput(e) {
+    const key = e.currentTarget.dataset.key;
+    this.setData({ ["form." + key]: e.detail.value });
+  },
+
+  onImportTextInput(e) {
+    this.setData({ importText: e.detail.value });
+  },
+
+  startCreate() {
+    this.setData({
+      showCreatePanel: true,
+      isEditMode: false,
+      editingStudentId: "",
+      form: emptyForm()
+    });
+  },
+
+  toggleCreatePanel() {
+    this.setData({
+      showCreatePanel: !this.data.showCreatePanel,
+      isEditMode: false,
+      editingStudentId: "",
+      form: emptyForm()
+    });
+  },
+
   buildPayloadFromForm() {
     const form = this.data.form;
-    const grades = this.data.grades;
-    const classTypes = this.data.classTypes;
     const weakTopics = String(form.weakTopicsText || "")
       .split(/[,，;；|]/)
       .map((x) => x.trim())
@@ -189,8 +260,8 @@ Page({
 
     return {
       name: form.name.trim(),
-      grade: grades[this.data.gradeIndex],
-      classType: classTypes[this.data.classTypeIndex] || "1v1",
+      grade: this.data.grades[this.data.gradeIndex],
+      classType: this.data.classTypes[this.data.classTypeIndex] || "1v1",
       homeroomTeacher: form.homeroomTeacher.trim(),
       phone: form.phone.trim(),
       parentPhone: form.parentPhone.trim(),
@@ -204,7 +275,6 @@ Page({
 
   saveStudent() {
     const payload = this.buildPayloadFromForm();
-
     if (!payload.name) {
       wx.showToast({ title: "请输入学生姓名", icon: "none" });
       return;
@@ -221,7 +291,8 @@ Page({
     this.setData({
       showCreatePanel: false,
       isEditMode: false,
-      editingStudentId: ""
+      editingStudentId: "",
+      form: emptyForm()
     });
     this.refresh();
   },
@@ -287,8 +358,6 @@ Page({
       return;
     }
 
-    const grades = this.data.grades;
-    const classTypes = this.data.classTypes;
     const lines = text.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
     const items = [];
     let ignored = 0;
@@ -299,8 +368,8 @@ Page({
         ignored += 1;
         return;
       }
-      const grade = grades.indexOf(cols[1]) >= 0 ? cols[1] : grades[this.data.gradeIndex];
-      const classType = classTypes.indexOf(cols[2]) >= 0 ? cols[2] : classTypes[this.data.classTypeIndex] || "1v1";
+      const grade = this.data.grades.indexOf(cols[1]) >= 0 ? cols[1] : this.data.currentGrade;
+      const classType = this.data.classTypes.indexOf(cols[2]) >= 0 ? cols[2] : this.data.currentClassType;
       items.push({
         name: cols[0],
         grade,
@@ -351,8 +420,6 @@ Page({
 
   toStudentDetail(e) {
     const studentId = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: "/pages/student-detail/student-detail?id=" + studentId
-    });
+    wx.navigateTo({ url: "/pages/student-detail/student-detail?id=" + studentId });
   }
 });

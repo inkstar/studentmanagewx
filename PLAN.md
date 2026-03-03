@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 01:35] Phase 24 - 复制 educonnect 三页逻辑与风格（Done）
+- 目标：将仪表盘、学生管理、课程记录三页完整迁移为 `educonnect-main` 的交互逻辑与视觉结构，并保持现有数据读写能力。
+- 改动文件：`pages/index/index.js`、`pages/index/index.wxml`、`pages/index/index.wxss`、`pages/students/students.js`、`pages/students/students.wxml`、`pages/students/students.wxss`、`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
+- 验收标准：仪表盘具备四统计卡+反馈率+分布+最近课程；学生页具备搜索+筛选抽屉+卡片清单+悬浮新增；课程页具备分类标签+卡片清单+浮动新增及原有增改删复制导图流程。
+- 风险与回滚：风险为新交互层级增多导致少量机型滚动/遮罩表现差异；回滚方式为 `git revert` 本阶段提交并回退到 Phase 23 样式版本。
+
 ## [UTC+8 2026-03-04 01:26] Phase 23 - 参考 educonnect-main 的 UI 主题重构（Done）
 - 目标：参考 `00/educonnect-main` 视觉语言，将小程序 UI 统一到靛蓝渐变主题，并优化表格与操作按钮观感。
 - 改动文件：`app.json`、`app.wxss`、`pages/students/students.wxss`、`pages/lesson/lesson.wxss`、`.gitignore`、`PLAN.md`。
@@ -154,6 +160,7 @@
 - Phase 21 学生管理页参考图重构：Done
 - Phase 22 参考 read3 的学生与课程模块重构：Done
 - Phase 23 参考 educonnect-main 的 UI 主题重构：Done
+- Phase 24 复制 educonnect 三页逻辑与风格：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -180,6 +187,7 @@
 - 2026-03-04：完成学生页后台表格风格改版，补齐导出与编辑操作。
 - 2026-03-04：完成 read3 版学生与课程模块重构，课程页支持筛选/增改删复制/导出图片与 Markdown 预览。
 - 2026-03-04：完成 educonnect 风格主题改版，统一全局配色并确保 `00/` 目录不入库。
+- 2026-03-04：完成仪表盘/学生管理/课程记录三页按 educonnect 逻辑与风格迁移，保留小程序业务操作闭环。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。

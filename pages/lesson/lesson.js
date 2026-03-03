@@ -3,12 +3,20 @@ const exporter = require("../../utils/exporter");
 
 const ATTENDANCE_OPTIONS = ["出勤", "迟到", "缺勤"];
 const LESSON_STATUS = ["已完成", "已取消", "已改期"];
+const SUBJECT_TABS = ["全部", "数学", "物理", "本周"];
 
 function today() {
   const d = new Date();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return d.getFullYear() + "-" + m + "-" + day;
+}
+
+function formatNow() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return "今天 " + hh + ":" + mm;
 }
 
 function clipText(text, maxLen) {
@@ -19,12 +27,33 @@ function clipText(text, maxLen) {
   return value.length > maxLen ? value.slice(0, maxLen) + "..." : value;
 }
 
+function firstChar(name) {
+  const raw = String(name || "").trim();
+  return raw ? raw.slice(0, 1) : "?";
+}
+
+function isThisWeek(dateString) {
+  const d = new Date(String(dateString || "") + "T00:00:00");
+  if (Number.isNaN(d.getTime())) {
+    return false;
+  }
+  const now = new Date();
+  const day = now.getDay();
+  const mondayOffset = day === 0 ? 6 : day - 1;
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
+  return d >= start && d < end;
+}
+
 Page({
   data: {
     fatalError: "",
+    updatedAt: "",
+
     grades: [],
     gradeIndex: 0,
     currentGrade: "高一",
+
     students: [],
     studentIndex: 0,
     currentStudentName: "暂无学生",
@@ -32,6 +61,9 @@ Page({
     lessons: [],
     filteredLessons: [],
     lessonKeyword: "",
+    subjectTabs: SUBJECT_TABS,
+    subjectTabIndex: 0,
+    activeSubject: "全部",
 
     showCreatePanel: false,
     isEditMode: false,
@@ -65,8 +97,10 @@ Page({
       const grades = repo.getGradeOptions();
       const gradeIndex = grades.length ? Math.min(this.data.gradeIndex, grades.length - 1) : 0;
       const currentGrade = grades[gradeIndex] || "高一";
+
       this.setData({
         fatalError: "",
+        updatedAt: formatNow(),
         grades,
         gradeIndex,
         currentGrade
@@ -96,29 +130,52 @@ Page({
   },
 
   loadLessons() {
-    const lessons = repo.getLessons({ grade: this.data.currentGrade, limit: 200 }).map((item) => ({
+    const lessons = repo.getLessons({ grade: this.data.currentGrade, limit: 300 }).map((item) => ({
       ...item,
-      timeRange: item.startTime && item.endTime ? item.startTime + " - " + item.endTime : "时间未填",
-      contentSummary: clipText(item.content, 48)
+      studentAvatarLetter: firstChar(item.studentName),
+      timeRange: item.startTime && item.endTime ? item.startTime + "-" + item.endTime : "时间未填",
+      contentSummary: clipText(item.content, 42)
     }));
-    this.setData({ lessons });
+    this.setData({ lessons, updatedAt: formatNow() });
     this.applyLessonFilter();
   },
 
   applyLessonFilter() {
     const keyword = String(this.data.lessonKeyword || "").trim();
+    const activeSubject = this.data.activeSubject;
     const filteredLessons = this.data.lessons.filter((item) => {
-      if (!keyword) {
-        return true;
-      }
-      return (
+      const hitKeyword =
+        !keyword ||
         String(item.studentName || "").indexOf(keyword) >= 0 ||
         String(item.subject || "").indexOf(keyword) >= 0 ||
         String(item.teacher || "").indexOf(keyword) >= 0 ||
-        String(item.content || "").indexOf(keyword) >= 0
-      );
+        String(item.content || "").indexOf(keyword) >= 0;
+
+      let hitSubject = true;
+      if (activeSubject === "数学" || activeSubject === "物理") {
+        hitSubject = String(item.subject || "") === activeSubject;
+      } else if (activeSubject === "本周") {
+        hitSubject = isThisWeek(item.lessonDate);
+      }
+
+      return hitKeyword && hitSubject;
     });
     this.setData({ filteredLessons });
+  },
+
+  onLessonKeywordInput(e) {
+    this.setData({ lessonKeyword: e.detail.value });
+    this.applyLessonFilter();
+  },
+
+  onSubjectTabTap(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const activeSubject = SUBJECT_TABS[index] || "全部";
+    this.setData({
+      subjectTabIndex: index,
+      activeSubject
+    });
+    this.applyLessonFilter();
   },
 
   resetForm() {
@@ -157,11 +214,6 @@ Page({
     this.setData({ showCreatePanel: true });
     this.loadStudentsByGrade();
     this.resetForm();
-  },
-
-  onLessonKeywordInput(e) {
-    this.setData({ lessonKeyword: e.detail.value });
-    this.applyLessonFilter();
   },
 
   onGradeChange(e) {
@@ -252,6 +304,7 @@ Page({
     if (!students.length) {
       return null;
     }
+
     const student = students[this.data.studentIndex];
     const weakTopics = String(this.data.weakTopicsText || "")
       .split(/[,，;；|]/)
@@ -319,10 +372,8 @@ Page({
     const gradeIndex = Math.max(0, this.data.grades.indexOf(lesson.grade || this.data.currentGrade));
     const currentGrade = this.data.grades[gradeIndex] || this.data.currentGrade;
     const students = repo.getStudents({ keyword: "", grade: currentGrade });
-    const studentIndex = Math.max(
-      0,
-      students.findIndex((s) => s.id === lesson.studentId)
-    );
+    const rawStudentIndex = students.findIndex((s) => s.id === lesson.studentId);
+    const studentIndex = rawStudentIndex >= 0 ? rawStudentIndex : 0;
 
     this.setData({
       showCreatePanel: true,
@@ -331,8 +382,8 @@ Page({
       gradeIndex,
       currentGrade,
       students,
-      studentIndex: studentIndex >= 0 ? studentIndex : 0,
-      currentStudentName: students.length ? students[studentIndex >= 0 ? studentIndex : 0].name : "暂无学生",
+      studentIndex,
+      currentStudentName: students.length ? students[studentIndex].name : "暂无学生",
       lessonDate: lesson.lessonDate || today(),
       startTime: lesson.startTime || "19:00",
       endTime: lesson.endTime || "21:00",
@@ -362,10 +413,8 @@ Page({
     const gradeIndex = Math.max(0, this.data.grades.indexOf(lesson.grade || this.data.currentGrade));
     const currentGrade = this.data.grades[gradeIndex] || this.data.currentGrade;
     const students = repo.getStudents({ keyword: "", grade: currentGrade });
-    const studentIndex = Math.max(
-      0,
-      students.findIndex((s) => s.id === lesson.studentId)
-    );
+    const rawStudentIndex = students.findIndex((s) => s.id === lesson.studentId);
+    const studentIndex = rawStudentIndex >= 0 ? rawStudentIndex : 0;
 
     this.setData({
       showCreatePanel: true,
@@ -374,8 +423,8 @@ Page({
       gradeIndex,
       currentGrade,
       students,
-      studentIndex: studentIndex >= 0 ? studentIndex : 0,
-      currentStudentName: students.length ? students[studentIndex >= 0 ? studentIndex : 0].name : "暂无学生",
+      studentIndex,
+      currentStudentName: students.length ? students[studentIndex].name : "暂无学生",
       lessonDate: today(),
       startTime: lesson.startTime || "19:00",
       endTime: lesson.endTime || "21:00",
@@ -462,7 +511,7 @@ Page({
     ctx.setFillStyle("#f3f7fd");
     ctx.fillRect(0, 0, width, height);
 
-    ctx.setFillStyle("#15407a");
+    ctx.setFillStyle("#4f46e5");
     ctx.fillRect(28, 28, width - 56, 120);
     ctx.setFillStyle("#ffffff");
     ctx.setFontSize(36);
@@ -497,17 +546,20 @@ Page({
       }
       const isTitle = line === "课程内容" || line === "学生情况" || line === "课后作业";
       ctx.setFontSize(isTitle ? 30 : 24);
-      ctx.setFillStyle(isTitle ? "#0f3a70" : "#2a3f5d");
+      ctx.setFillStyle(isTitle ? "#312e81" : "#2a3f5d");
+
       const block = String(line);
       const chunkSize = isTitle ? 30 : 24;
       const chunks = [];
       for (let i = 0; i < block.length; i += chunkSize) {
         chunks.push(block.slice(i, i + chunkSize));
       }
+
       chunks.forEach((chunk) => {
         ctx.fillText(chunk, 56, y);
         y += isTitle ? 44 : 36;
       });
+
       if (idx < lines.length - 1) {
         y += 4;
       }
