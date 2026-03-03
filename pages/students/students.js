@@ -1,4 +1,30 @@
 const repo = require("../../utils/repository");
+const exporter = require("../../utils/exporter");
+
+function topWeakTags(raw, studentId) {
+  const tags = raw.tags || [];
+  const tagMap = {};
+  tags.forEach((t) => {
+    tagMap[t.id] = t.name;
+  });
+
+  const cnt = {};
+  (raw.weaknessLogs || []).forEach((w) => {
+    if (w.studentId !== studentId) {
+      return;
+    }
+    cnt[w.tagId] = (cnt[w.tagId] || 0) + 1;
+  });
+
+  return Object.keys(cnt)
+    .map((tagId) => ({
+      name: tagMap[tagId] || "未知标签",
+      count: cnt[tagId]
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map((x) => x.name);
+}
 
 Page({
   data: {
@@ -11,6 +37,8 @@ Page({
     currentGrade: "高一",
     canManage: true,
     showCreatePanel: false,
+    isEditMode: false,
+    editingStudentId: "",
     importText: "",
     form: {
       name: "",
@@ -34,10 +62,15 @@ Page({
     const gradeIndex = Math.min(this.data.gradeIndex, Math.max(0, grades.length - 1));
     const selectedGrade = gradeFilterOptions[filterGradeIndex];
 
-    const students = repo.getStudents({
+    const rawStudents = repo.getStudents({
       keyword: this.data.keyword,
       grade: selectedGrade === "全部" ? "" : selectedGrade
     });
+    const raw = repo.getRawDB();
+    const students = rawStudents.map((s) => ({
+      ...s,
+      weakTags: topWeakTags(raw, s.id)
+    }));
 
     this.setData({
       grades,
@@ -50,7 +83,21 @@ Page({
   },
 
   toggleCreatePanel() {
-    this.setData({ showCreatePanel: !this.data.showCreatePanel });
+    this.setData({
+      showCreatePanel: !this.data.showCreatePanel,
+      isEditMode: false,
+      editingStudentId: "",
+      form: { name: "", phone: "", guardian: "" }
+    });
+  },
+
+  startCreate() {
+    this.setData({
+      showCreatePanel: true,
+      isEditMode: false,
+      editingStudentId: "",
+      form: { name: "", phone: "", guardian: "" }
+    });
   },
 
   onKeywordInput(e) {
@@ -83,7 +130,7 @@ Page({
     });
   },
 
-  addStudent() {
+  saveStudent() {
     const form = this.data.form;
     const grades = this.data.grades;
 
@@ -97,20 +144,51 @@ Page({
       return;
     }
 
-    repo.addStudent({
+    const payload = {
       name: form.name.trim(),
       grade: grades[this.data.gradeIndex],
       phone: form.phone.trim(),
       guardian: form.guardian.trim()
-    });
+    };
+
+    if (this.data.isEditMode && this.data.editingStudentId) {
+      repo.updateStudent(this.data.editingStudentId, payload);
+      wx.showToast({ title: "已更新", icon: "success" });
+    } else {
+      repo.addStudent(payload);
+      wx.showToast({ title: "新增成功", icon: "success" });
+    }
 
     this.setData({
       form: { name: "", phone: "", guardian: "" },
+      isEditMode: false,
+      editingStudentId: "",
       showCreatePanel: false
     });
 
     this.refresh();
-    wx.showToast({ title: "新增成功", icon: "success" });
+  },
+
+  startEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    const student = this.data.students.find((s) => s.id === id);
+    if (!student) {
+      return;
+    }
+
+    const gradeIndex = Math.max(0, this.data.grades.indexOf(student.grade));
+    this.setData({
+      showCreatePanel: true,
+      isEditMode: true,
+      editingStudentId: id,
+      gradeIndex,
+      currentGrade: this.data.grades[gradeIndex] || "高一",
+      form: {
+        name: student.name || "",
+        phone: student.phone || "",
+        guardian: student.guardian || ""
+      }
+    });
   },
 
   deleteStudent(e) {
@@ -175,6 +253,15 @@ Page({
       title: "导入完成",
       content: "成功 " + created.length + " 条，忽略 " + ignored + " 条。",
       showCancel: false
+    });
+  },
+
+  exportStudents() {
+    wx.setClipboardData({
+      data: exporter.exportStudentsCSV(),
+      success: () => {
+        wx.showToast({ title: "学生CSV已复制", icon: "success" });
+      }
     });
   },
 

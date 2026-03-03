@@ -1,45 +1,65 @@
 <view class="container">
   <view class="hero">
-    <view class="hero-title">学生记录清单</view>
-    <view class="hero-sub">按年级查看学生记录，支持新增与删除学生。</view>
+    <view class="hero-title">学生管理</view>
+    <view class="hero-sub">记录清单模式，支持筛选、导出、新增、编辑、删除。</view>
     <view class="chip-row">
-      <view class="chip">当前筛选 {{gradeFilterOptions[filterGradeIndex]}}</view>
-      <view class="chip">记录 {{students.length}}</view>
+      <view class="chip">筛选 {{gradeFilterOptions[filterGradeIndex]}}</view>
+      <view class="chip">数量 {{students.length}}</view>
     </view>
   </view>
 
   <view class="card" wx:if="{{!showCreatePanel}}">
     <view class="row">
-      <view class="section-title" style="margin-bottom:0;">学生记录列表</view>
-      <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel" wx:if="{{canManage}}">新增学生</view>
+      <view class="section-title" style="margin-bottom:0;">学生记录清单</view>
+      <view class="row">
+        <view class="btn-ghost action-btn" bindtap="exportStudents">导出Excel</view>
+        <view class="btn-primary action-btn" bindtap="startCreate" wx:if="{{canManage}}">添加学生</view>
+      </view>
     </view>
-    <view class="mt-12">
-      <input class="input" placeholder="搜索姓名 / 年级 / 手机号" value="{{keyword}}" bindinput="onKeywordInput" />
+
+    <view class="table-filters mt-12">
+      <input class="input" placeholder="搜索学生姓名..." value="{{keyword}}" bindinput="onKeywordInput" />
       <picker mode="selector" range="{{gradeFilterOptions}}" value="{{filterGradeIndex}}" bindchange="onFilterGradeChange">
-        <view class="picker">筛选年级：{{gradeFilterOptions[filterGradeIndex]}}</view>
+        <view class="picker filter-picker">{{gradeFilterOptions[filterGradeIndex]}}</view>
       </picker>
     </view>
 
-    <view wx:if="{{!students.length}}" class="sub mt-12">暂无数据</view>
-    <view wx:for="{{students}}" wx:key="id" class="list-item">
-      <view class="row" bindtap="toStudentDetail" data-id="{{item.id}}">
-        <view>
-          <view class="title" style="font-size: 28rpx; margin-bottom: 6rpx;">{{item.name}}</view>
-          <view class="sub">{{item.grade}} · {{item.phone || '未填写手机号'}}</view>
-        </view>
-        <view class="badge">详情</view>
+    <view class="table-wrap">
+      <view class="table-head row">
+        <text class="col-name">姓名</text>
+        <text class="col-grade">年级</text>
+        <text class="col-phone">联系方式</text>
+        <text class="col-weak">薄弱知识点</text>
+        <text class="col-action">操作</text>
       </view>
-      <view class="row mt-8">
-        <view class="sub">课堂 {{item.lessonCount}} 次 · 进度 {{item.examCount}} 次</view>
-        <view class="btn-danger" style="height:56rpx;line-height:56rpx;padding:0 16rpx;" wx:if="{{canManage}}" catchtap="deleteStudent" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
+
+      <view wx:if="{{!students.length}}" class="sub mt-12">暂无数据</view>
+
+      <view wx:for="{{students}}" wx:key="id" class="table-row row">
+        <view class="col-name">{{item.name}}</view>
+        <view class="col-grade"><text class="grade-pill">{{item.grade}}</text></view>
+        <view class="col-phone">{{item.phone || '未填写'}}</view>
+        <view class="col-weak">
+          <view wx:if="{{item.weakTags.length}}" class="weak-tags">
+            <text wx:for="{{item.weakTags}}" wx:key="*this" class="weak-pill">{{item}}</text>
+          </view>
+          <text wx:else>-</text>
+        </view>
+        <view class="col-action">
+          <view class="op-row">
+            <view class="op-btn op-view" bindtap="toStudentDetail" data-id="{{item.id}}">看</view>
+            <view class="op-btn op-edit" wx:if="{{canManage}}" bindtap="startEdit" data-id="{{item.id}}">改</view>
+            <view class="op-btn op-del" wx:if="{{canManage}}" bindtap="deleteStudent" data-id="{{item.id}}" data-name="{{item.name}}">删</view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
 
   <view class="card" wx:if="{{showCreatePanel && canManage}}">
     <view class="row">
-      <view class="section-title" style="margin-bottom:0;">新增学生</view>
-      <view class="btn-ghost" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">返回列表</view>
+      <view class="section-title" style="margin-bottom:0;">{{isEditMode ? '编辑学生' : '新增学生'}}</view>
+      <view class="btn-ghost action-btn" bindtap="toggleCreatePanel">返回清单</view>
     </view>
 
     <view class="form-block mt-12">
@@ -64,7 +84,7 @@
         </view>
       </view>
     </view>
-    <view class="btn-primary" bindtap="addStudent">保存学生</view>
+    <view class="btn-primary" bindtap="saveStudent">{{isEditMode ? '保存修改' : '保存学生'}}</view>
   </view>
 
   <view class="card" wx:if="{{showCreatePanel && canManage}}">
@@ -79,6 +99,6 @@
 
   <view class="card" wx:if="{{!canManage}}">
     <view class="section-title">权限说明</view>
-    <view class="sub">当前角色为老师，可查看学生记录；新增和删除仅管理员可操作。</view>
+    <view class="sub">当前角色为老师，可查看学生记录；新增、编辑、删除仅管理员可操作。</view>
   </view>
 </view>

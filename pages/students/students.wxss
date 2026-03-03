@@ -1,1 +1,119 @@
-/* 使用 app.wxss 全局样式 */
+.table-filters {
+  display: flex;
+  gap: 12rpx;
+}
+
+.table-filters .input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.filter-picker {
+  min-width: 180rpx;
+  margin-bottom: 0;
+}
+
+.action-btn {
+  height: 66rpx;
+  line-height: 66rpx;
+  padding: 0 20rpx;
+}
+
+.table-wrap {
+  margin-top: 14rpx;
+  border: 1rpx solid #d8e3f2;
+  border-radius: 14rpx;
+  overflow: hidden;
+  background: #fff;
+}
+
+.table-head {
+  background: #1f2833;
+  color: #fff;
+  padding: 14rpx 12rpx;
+  font-weight: 600;
+}
+
+.table-row {
+  align-items: flex-start;
+  padding: 14rpx 12rpx;
+  border-top: 1rpx solid #edf2f9;
+  font-size: 24rpx;
+}
+
+.col-name {
+  width: 16%;
+}
+
+.col-grade {
+  width: 14%;
+}
+
+.col-phone {
+  width: 20%;
+  color: #2d415d;
+}
+
+.col-weak {
+  width: 32%;
+  color: #2d415d;
+}
+
+.col-action {
+  width: 18%;
+}
+
+.grade-pill {
+  display: inline-block;
+  border-radius: 8rpx;
+  padding: 4rpx 10rpx;
+  background: #1f7ae0;
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.weak-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+
+.weak-pill {
+  display: inline-block;
+  border-radius: 8rpx;
+  padding: 3rpx 8rpx;
+  background: #ffd04a;
+  color: #1f2833;
+  font-size: 20rpx;
+}
+
+.op-row {
+  display: flex;
+  gap: 8rpx;
+  justify-content: flex-end;
+}
+
+.op-btn {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 8rpx;
+  border: 1rpx solid;
+  font-size: 22rpx;
+}
+
+.op-view {
+  color: #00a8f0;
+  border-color: #00a8f0;
+}
+
+.op-edit {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.op-del {
+  color: #ef4444;
+  border-color: #ef4444;
+}

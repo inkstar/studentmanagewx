@@ -44,6 +44,11 @@ function addStudent(payload) {
   return db.addStudent(payload);
 }
 
+function updateStudent(studentId, payload) {
+  warnCloudFallback();
+  return db.updateStudent(studentId, payload);
+}
+
 function addStudentsBatch(items) {
   warnCloudFallback();
   return db.addStudentsBatch(items);
@@ -129,6 +134,7 @@ module.exports = {
   getStudents,
   getStudentById,
   addStudent,
+  updateStudent,
   addStudentsBatch,
   deleteStudent,
   getLessons,

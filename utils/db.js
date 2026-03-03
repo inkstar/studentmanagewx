@@ -176,6 +176,31 @@ function addStudent(payload) {
   return item;
 }
 
+function updateStudent(studentId, payload) {
+  const db = readDB();
+  const idx = db.students.findIndex((s) => s.id === studentId);
+  if (idx < 0) {
+    return null;
+  }
+
+  const current = db.students[idx];
+  const grade = payload.grade && GRADE_OPTIONS.indexOf(payload.grade) >= 0 ? payload.grade : current.grade || "高一";
+  const classId = ensureClassForGrade(db, grade);
+
+  const updated = {
+    ...current,
+    name: payload.name != null ? String(payload.name).trim() : current.name,
+    grade,
+    classId,
+    phone: payload.phone != null ? String(payload.phone).trim() : current.phone,
+    guardian: payload.guardian != null ? String(payload.guardian).trim() : current.guardian
+  };
+
+  db.students[idx] = updated;
+  writeDB(db);
+  return updated;
+}
+
 function addStudentsBatch(items) {
   const db = readDB();
   const created = [];
@@ -536,6 +561,7 @@ module.exports = {
   getStudents,
   getStudentById,
   addStudent,
+  updateStudent,
   addStudentsBatch,
   deleteStudent,
   getLessons,
