@@ -187,4 +187,4 @@
 
 </view>
 
-<canvas canvas-id="lessonShareCanvas" class="share-canvas" style="width:720px;height:1280px;"></canvas>
+<canvas canvas-id="lessonShareCanvas" class="share-canvas" style="width:720px;height:1480px;"></canvas>
