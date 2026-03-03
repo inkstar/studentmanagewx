@@ -34,6 +34,10 @@ function writeDB(data) {
   wx.setStorageSync(KEY, data);
 }
 
+function getRawDB() {
+  return readDB();
+}
+
 function resetDB() {
   const seed = createSeedData();
   writeDB(seed);
@@ -298,5 +302,6 @@ module.exports = {
   getWeaknessStats,
   getDashboardStats,
   getLatestLessonSummary,
-  resetDB
+  resetDB,
+  getRawDB
 };

@@ -1,4 +1,5 @@
 const db = require("../../utils/db");
+const exporter = require("../../utils/exporter");
 
 Page({
   data: {
@@ -27,5 +28,26 @@ Page({
         wx.showToast({ title: "已重置", icon: "success" });
       }
     });
+  },
+
+  copyCSV(content, label) {
+    wx.setClipboardData({
+      data: content,
+      success: () => {
+        wx.showToast({ title: label + "已复制", icon: "success" });
+      }
+    });
+  },
+
+  exportStudents() {
+    this.copyCSV(exporter.exportStudentsCSV(), "学生CSV");
+  },
+
+  exportLessons() {
+    this.copyCSV(exporter.exportLessonsCSV(), "课堂CSV");
+  },
+
+  exportExams() {
+    this.copyCSV(exporter.exportExamsCSV(), "成绩CSV");
   }
 });

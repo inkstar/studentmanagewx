@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-03 23:02] Phase 6 - CSV 导出能力补齐（Done）
+- 目标：补齐学生、课堂、成绩数据的 CSV 导出能力，支持老师快速对外汇报与归档。
+- 改动文件：`utils/exporter.js`、`pages/profile/profile.js`、`pages/profile/profile.wxml`、`utils/db.js`、`README.md`、`PLAN.md`。
+- 验收标准：在“我的”页可点击导出学生/课堂/成绩 CSV，并复制到剪贴板；粘贴后可被 Excel 正常识别。
+- 风险与回滚：风险为文本字段包含换行导致 CSV 可读性下降；回滚方式为 `git revert` 本阶段提交并调整导出转义策略。
+
 ## [UTC+8 2026-03-03 23:00] Phase 5 - SQLite 数据接入与业务页面联动（Done）
 - 目标：支持读取 `student_info.db` 的数据结构并驱动小程序业务页面，完成学生/课堂/成绩/薄弱点四条链路的可操作 MVP。
 - 改动文件：`utils/db.js`、`scripts/sync-from-sqlite.mjs`、`data/student_info.seed.json`、`app.json`、`app.js`、`app.wxss`、`pages/index/*`、`pages/students/*`、`pages/student-detail/*`、`pages/lesson/*`、`pages/scores/*`、`pages/profile/*`、`README.md`、`.gitignore`、`PLAN.md`。
@@ -28,6 +34,7 @@
 - Phase 3 PLAN 收敛：Done
 - Phase 4 小程序骨架：Done
 - Phase 5 SQLite 接入与业务联动：Done
+- Phase 6 CSV 导出能力：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -36,6 +43,7 @@
 - 2026-03-03：完成 `PLAN.md` 收敛并推送阶段提交。
 - 2026-03-03：完成小程序运行骨架搭建并修复 `app.json` 缺失问题。
 - 2026-03-03：完成 `student_info.db` 同步脚本与 DB 数据映射，业务页面联调通过。
+- 2026-03-03：完成 CSV 导出能力（学生/课堂/成绩）并接入“我的”页面。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。

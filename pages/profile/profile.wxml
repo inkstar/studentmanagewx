@@ -14,6 +14,14 @@
   </view>
 
   <view class="card">
+    <view class="title">数据导出</view>
+    <view class="sub">导出为 CSV 文本并复制到剪贴板，可直接粘贴到 Excel。</view>
+    <view class="btn-ghost mt-12" bindtap="exportStudents">导出学生CSV</view>
+    <view class="btn-ghost mt-12" bindtap="exportLessons">导出课堂CSV</view>
+    <view class="btn-ghost mt-12" bindtap="exportExams">导出成绩CSV</view>
+  </view>
+
+  <view class="card">
     <view class="title">运维工具</view>
     <view class="sub">用于快速回到初始演示数据。</view>
     <view class="btn-ghost mt-12" bindtap="resetDemo">重置示例数据</view>
