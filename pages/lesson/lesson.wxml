@@ -13,7 +13,7 @@
     <view class="sub">{{fatalError}}</view>
   </view>
 
-  <view class="card">
+  <view class="card" wx:if="{{!showCreatePanel}}">
     <view class="row">
       <view class="section-title" style="margin-bottom:0;">课程记录列表</view>
       <view class="btn-primary" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">{{showCreatePanel ? '收起' : '新增课程记录'}}</view>
@@ -33,6 +33,13 @@
       <view class="sub mt-8">教师 {{item.teacher || '未填'}} · 时长 {{item.duration}} 分钟 · 学生 {{item.studentCount}} 人</view>
       <view class="sub">内容：{{item.content || '未填写'}}</view>
       <view class="sub">作业：{{item.homework || '未填写'}}</view>
+    </view>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="row">
+      <view class="section-title" style="margin-bottom:0;">新增课程记录</view>
+      <view class="btn-ghost" style="height:66rpx;line-height:66rpx;padding:0 22rpx;" bindtap="toggleCreatePanel">返回列表</view>
     </view>
   </view>
 
