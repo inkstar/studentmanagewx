@@ -108,10 +108,20 @@ page {
   background: #fdfefe;
   color: #10223b;
   box-sizing: border-box;
+  font-size: 28rpx;
+}
+
+.input,
+.picker {
+  height: 84rpx;
+  line-height: 84rpx;
+  padding: 0 20rpx;
 }
 
 .textarea {
-  min-height: 130rpx;
+  min-height: 180rpx;
+  line-height: 1.65;
+  padding: 16rpx 20rpx;
 }
 
 .btn-primary,
@@ -146,6 +156,16 @@ page {
   align-items: center;
   justify-content: space-between;
   gap: 12rpx;
+}
+
+.row-2col {
+  display: flex;
+  gap: 12rpx;
+}
+
+.row-2col .input {
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .list-item {

@@ -18,7 +18,7 @@
     <picker mode="selector" range="{{masteryOptions}}" value="{{masteryIndex}}" bindchange="onMasteryChange">
       <view class="picker">掌握程度：{{masteryOptions[masteryIndex]}}</view>
     </picker>
-    <view class="row">
+    <view class="row-2col">
       <input class="input" type="number" placeholder="数学分" value="{{form.math}}" data-key="math" bindinput="onFormInput" />
       <input class="input" type="number" placeholder="英语分" value="{{form.english}}" data-key="english" bindinput="onFormInput" />
     </view>
