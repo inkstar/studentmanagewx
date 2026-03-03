@@ -79,13 +79,58 @@ function roundRectPath(ctx, x, y, w, h, r) {
 function drawRoundedBlock(ctx, x, y, w, h, r, fill, stroke, lineWidth) {
   roundRectPath(ctx, x, y, w, h, r);
   if (fill) {
-    ctx.setFillStyle(fill);
+    applyFillStyle(ctx, fill);
     ctx.fill();
   }
   if (stroke) {
-    ctx.setLineWidth(lineWidth || 1);
-    ctx.setStrokeStyle(stroke);
+    applyLineWidth(ctx, lineWidth || 1);
+    applyStrokeStyle(ctx, stroke);
     ctx.stroke();
+  }
+}
+
+function applyFillStyle(ctx, color) {
+  if ("fillStyle" in ctx) {
+    ctx.fillStyle = color;
+    return;
+  }
+  if (typeof ctx.setFillStyle === "function") {
+    ctx.setFillStyle(color);
+  }
+}
+
+function applyStrokeStyle(ctx, color) {
+  if ("strokeStyle" in ctx) {
+    ctx.strokeStyle = color;
+    return;
+  }
+  if (typeof ctx.setStrokeStyle === "function") {
+    ctx.setStrokeStyle(color);
+  }
+}
+
+function applyLineWidth(ctx, width) {
+  if ("lineWidth" in ctx) {
+    ctx.lineWidth = width;
+    return;
+  }
+  if (typeof ctx.setLineWidth === "function") {
+    ctx.setLineWidth(width);
+  }
+}
+
+function applyFontSize(ctx, size, weight) {
+  if ("font" in ctx) {
+    const fontWeight = weight || 400;
+    ctx.font =
+      fontWeight +
+      " " +
+      size +
+      "px -apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif";
+    return;
+  }
+  if (typeof ctx.setFontSize === "function") {
+    ctx.setFontSize(size);
   }
 }
 
@@ -681,7 +726,7 @@ Page({
     wx.showLoading({ title: "生成中..." });
     this.prepareExportCanvas(width, height)
       .then(({ canvas, ctx }) => {
-        ctx.setFillStyle("#f8fafc");
+        applyFillStyle(ctx, "#f8fafc");
         ctx.fillRect(0, 0, width, height);
 
         drawRoundedBlock(ctx, pageX, pageY, pageW, pageH, 30, "#ffffff", "#edf2f7", 1);
@@ -692,11 +737,11 @@ Page({
         drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 30, headGrad, null, 0);
         drawRoundedBlock(ctx, pageX, pageY + headerH - 30, pageW, 38, 0, "#ff7a38", null, 0);
 
-        ctx.setFillStyle("#ffffff");
-        ctx.setFontSize(46);
+        applyFillStyle(ctx, "#ffffff");
+        applyFontSize(ctx, 46, 700);
         ctx.fillText("课程记录与反馈", pageX + 32, pageY + 84);
-        ctx.setFontSize(28);
-        ctx.setFillStyle("rgba(255,255,255,0.92)");
+        applyFontSize(ctx, 28, 400);
+        applyFillStyle(ctx, "rgba(255,255,255,0.92)");
         ctx.fillText("Lesson Record & Feedback", pageX + 32, pageY + 126);
 
         const infoTop = contentY;
@@ -710,13 +755,13 @@ Page({
           const x = contentX + col * (boxW + boxGap);
           const y = infoTop + r * (boxH + boxGap);
           drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#ffffff", "#f1f5f9", 1);
-          ctx.setFillStyle("#ff7a38");
+          applyFillStyle(ctx, "#ff7a38");
           drawRoundedBlock(ctx, x, y + 14, 8, boxH - 28, 2, "#ff7a38", null, 0);
-          ctx.setFillStyle("#9ca3af");
-          ctx.setFontSize(19);
+          applyFillStyle(ctx, "#9ca3af");
+          applyFontSize(ctx, 19, 400);
           ctx.fillText(row[0], x + 18, y + 32);
-          ctx.setFillStyle("#1f2937");
-          ctx.setFontSize(26);
+          applyFillStyle(ctx, "#1f2937");
+          applyFontSize(ctx, 26, 700);
           drawParagraph(ctx, {
             text: row[1],
             x: x + 18,
@@ -728,22 +773,22 @@ Page({
         });
 
         const drawSection = (y, icon, title, text, lineCap) => {
-          ctx.setFillStyle("#ff7a38");
-          ctx.setFontSize(30);
+          applyFillStyle(ctx, "#ff7a38");
+          applyFontSize(ctx, 30, 700);
           ctx.fillText("|", contentX, y + 24);
-          ctx.setFillStyle("#111827");
-          ctx.setFontSize(28);
+          applyFillStyle(ctx, "#111827");
+          applyFontSize(ctx, 28, 400);
           ctx.fillText(icon, contentX + 18, y + 24);
-          ctx.setFillStyle("#ff7a38");
-          ctx.setFontSize(31);
+          applyFillStyle(ctx, "#ff7a38");
+          applyFontSize(ctx, 31, 700);
           ctx.fillText(title, contentX + 54, y + 24);
 
           const boxY = y + 38;
           const boxHLocal = 166;
           drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
 
-          ctx.setFillStyle("#4b5563");
-          ctx.setFontSize(22);
+          applyFillStyle(ctx, "#4b5563");
+          applyFontSize(ctx, 22, 400);
           drawParagraph(ctx, {
             text: text || "暂无内容",
             x: contentX + 16,
@@ -763,8 +808,8 @@ Page({
         const footerH = 84;
         const footerY = pageY + pageH - footerH;
         drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#f1f5f9", 1);
-        ctx.setFillStyle("#9ca3af");
-        ctx.setFontSize(18);
+        applyFillStyle(ctx, "#9ca3af");
+        applyFontSize(ctx, 18, 400);
         ctx.fillText("生成时间: " + ts, pageX + 26, footerY + 34);
         ctx.fillText("学生课程管理系统 v1.0", pageX + 26, footerY + 62);
 
