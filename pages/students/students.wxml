@@ -1,0 +1,13 @@
+<view class="container">
+  <view class="card">
+    <view class="title">学生管理</view>
+    <view class="sub">首版支持按班级查看学生列表，后续接入搜索、筛选、导入和详情编辑。</view>
+  </view>
+
+  <view class="card">
+    <view class="sub">示例数据</view>
+    <view wx:for="{{students}}" wx:key="id" style="margin-top: 12rpx;">
+      <text>{{item.name}} · {{item.className}}</text>
+    </view>
+  </view>
+</view>

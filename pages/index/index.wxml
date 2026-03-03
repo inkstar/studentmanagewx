@@ -1,0 +1,25 @@
+<view class="container">
+  <view class="card">
+    <view class="title">教学工作台</view>
+    <view class="sub">欢迎使用学生管理小程序。这里将聚合今日课程、待补记录和最近成绩提醒。</view>
+  </view>
+
+  <view class="grid">
+    <view class="stat">
+      <view class="sub">今日课程</view>
+      <view class="stat-num">3</view>
+    </view>
+    <view class="stat">
+      <view class="sub">待补记录</view>
+      <view class="stat-num">2</view>
+    </view>
+    <view class="stat">
+      <view class="sub">本周考试</view>
+      <view class="stat-num">1</view>
+    </view>
+    <view class="stat">
+      <view class="sub">薄弱点预警</view>
+      <view class="stat-num">8</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,7 @@
+<view class="container">
+  <view class="card">
+    <view class="title">我的</view>
+    <view class="sub">角色：老师（示例）</view>
+    <view class="sub" style="margin-top: 8rpx;">后续支持账号信息、权限范围、导出任务记录。</view>
+  </view>
+</view>

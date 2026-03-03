@@ -1,0 +1,9 @@
+{
+  "desc": "学生管理小程序 sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

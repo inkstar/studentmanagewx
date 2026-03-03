@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/students/students",
+    "pages/lesson/lesson",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "学生管理",
+    "navigationBarBackgroundColor": "#0f172a",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7fb",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#6b7280",
+    "selectedColor": "#0ea5e9",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/students/students",
+        "text": "学生"
+      },
+      {
+        "pagePath": "pages/lesson/lesson",
+        "text": "课堂"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
