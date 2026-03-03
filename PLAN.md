@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 00:03] Phase 9 - 运行模式与身份流骨架（Done）
+- 目标：建立 `LOCAL/CLOUD` 数据模式切换和 `TEACHER/ADMIN` 身份切换骨架，为后续云函数接入和权限扩展打基础。
+- 改动文件：`utils/runtime.js`、`utils/repository.js`、`app.js`、`pages/profile/*`、`pages/students/*`、`pages/index/index.js`、`pages/lesson/lesson.js`、`pages/scores/scores.js`、`pages/student-detail/student-detail.js`、`utils/exporter.js`、`README.md`、`PLAN.md`。
+- 验收标准：我的页可切换角色与数据模式并保存；应用启动读取运行配置；数据访问统一经过仓储层，CLOUD 模式下可安全回退 LOCAL 数据。
+- 风险与回滚：风险为页面引用层变更导致局部调用异常；回滚方式为 `git revert` 本阶段提交并恢复 `utils/db.js` 直连模式。
+
 ## [UTC+8 2026-03-03 23:06] Phase 8 - 学生跟进指标增强（Done）
 - 目标：在学生列表展示每位学生的课堂次数与考试次数，提升老师日常跟进效率。
 - 改动文件：`utils/db.js`、`pages/students/students.wxml`、`PLAN.md`。
@@ -49,6 +55,7 @@
 - Phase 6 CSV 导出能力：Done
 - Phase 7 DB 结构映射文档：Done
 - Phase 8 学生跟进指标增强：Done
+- Phase 9 运行模式与身份流骨架：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -60,6 +67,7 @@
 - 2026-03-03：完成 CSV 导出能力（学生/课堂/成绩）并接入“我的”页面。
 - 2026-03-03：完成 `student_info.db` 映射文档沉淀并接入 README 导航。
 - 2026-03-03：完成学生列表课堂/考试计数展示，支持老师快速识别跟进状态。
+- 2026-03-04：完成运行配置（角色+数据模式）与仓储层抽象，预留云开发接入路径。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。

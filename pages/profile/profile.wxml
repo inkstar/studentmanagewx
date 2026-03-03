@@ -1,8 +1,25 @@
 <view class="container">
   <view class="card">
     <view class="title">我的</view>
-    <view class="sub">角色：老师（本地演示）</view>
     <view class="sub">版本：{{version}}</view>
+    <view class="sub">当前角色：{{runtime.role}}</view>
+    <view class="sub">数据模式：{{runtime.dataMode}}</view>
+  </view>
+
+  <view class="card">
+    <view class="title">运行配置</view>
+    <view class="sub">可切换老师/管理员身份，预留云开发模式。</view>
+
+    <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
+      <view class="picker">角色：{{roleOptions[roleIndex]}}</view>
+    </picker>
+
+    <picker mode="selector" range="{{modeOptions}}" value="{{modeIndex}}" bindchange="onModeChange">
+      <view class="picker">数据模式：{{modeOptions[modeIndex]}}</view>
+    </picker>
+
+    <input class="input" placeholder="云开发环境ID（CLOUD模式可填）" value="{{runtime.envId}}" bindinput="onEnvIdInput" />
+    <view class="btn-ghost" bindtap="saveEnvId">保存环境ID</view>
   </view>
 
   <view class="card" wx:if="{{stats}}">

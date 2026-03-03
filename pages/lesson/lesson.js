@@ -1,4 +1,4 @@
-const db = require("../../utils/db");
+const db = require("../../utils/repository");
 
 const ATTENDANCE_OPTIONS = ["出勤", "迟到", "缺勤"];
 

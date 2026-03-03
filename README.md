@@ -10,6 +10,7 @@
 5. 薄弱点：在学生详情页手动记录，支持统计 Top5。
 6. 我的：显示数据概览，支持重置示例数据。
 7. 导出：支持学生/课堂/成绩 CSV 导出（复制到剪贴板后可粘贴到 Excel）。
+8. 运行配置：支持切换 `TEACHER/ADMIN` 角色与 `LOCAL/CLOUD` 数据模式（云模式为预留骨架，当前自动回退本地）。
 
 ## 数据来源
 - 小程序运行时使用本地存储（`wx.setStorageSync`）。
@@ -43,6 +44,8 @@ node scripts/sync-from-sqlite.mjs
 - `app.json` / `app.js` / `app.wxss`：小程序入口。
 - `pages/`：页面实现。
 - `utils/db.js`：前端数据层与业务查询。
+- `utils/repository.js`：统一数据访问仓储层（预留云开发接入点）。
+- `utils/runtime.js`：运行时配置（角色、数据模式、云环境ID）。
 - `scripts/sync-from-sqlite.mjs`：SQLite 数据同步脚本。
 - `data/student_info.seed.json`：由 SQLite 导出的种子数据。
 - `docs/student_info_db_schema.md`：`student_info.db` 到小程序数据模型的字段映射。

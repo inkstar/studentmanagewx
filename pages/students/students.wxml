@@ -4,7 +4,7 @@
     <input class="input" placeholder="搜索姓名/班级/手机号" value="{{keyword}}" bindinput="onKeywordInput" />
   </view>
 
-  <view class="card">
+  <view class="card" wx:if="{{canAddStudent}}">
     <view class="title">新增学生</view>
     <input class="input" placeholder="姓名" data-key="name" value="{{form.name}}" bindinput="onFormInput" />
     <picker mode="selector" range="{{classes}}" range-key="name" value="{{classIndex}}" bindchange="onClassChange">
@@ -13,6 +13,11 @@
     <input class="input" placeholder="手机号（选填）" data-key="phone" value="{{form.phone}}" bindinput="onFormInput" />
     <input class="input" placeholder="家长称呼（选填）" data-key="guardian" value="{{form.guardian}}" bindinput="onFormInput" />
     <view class="btn-primary" bindtap="addStudent">保存学生</view>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="title">新增学生</view>
+    <view class="sub">当前角色为老师，仅管理员可新增学生。</view>
   </view>
 
   <view class="card">

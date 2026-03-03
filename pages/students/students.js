@@ -1,4 +1,4 @@
-const db = require("../../utils/db");
+const db = require("../../utils/repository");
 
 Page({
   data: {
@@ -7,6 +7,7 @@ Page({
     classes: [],
     classIndex: 0,
     currentClassName: "请选择班级",
+    canAddStudent: true,
     form: {
       name: "",
       phone: "",
@@ -15,6 +16,10 @@ Page({
   },
 
   onShow() {
+    const app = getApp();
+    this.setData({
+      canAddStudent: app.globalData.role === "ADMIN"
+    });
     this.refresh();
   },
 
