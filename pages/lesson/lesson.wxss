@@ -167,11 +167,12 @@
   line-height: 52rpx;
   text-align: center;
   border-radius: 50%;
-  font-size: 24rpx;
-  font-weight: 700;
+  font-size: 22rpx;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
 }
 
 .icon-btn.edit {
