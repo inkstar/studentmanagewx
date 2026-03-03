@@ -8,6 +8,7 @@ Page({
     classIndex: 0,
     currentClassName: "请选择班级",
     canAddStudent: true,
+    importText: "",
     form: {
       name: "",
       phone: "",
@@ -47,6 +48,10 @@ Page({
     });
   },
 
+  onImportTextInput(e) {
+    this.setData({ importText: e.detail.value });
+  },
+
   onClassChange(e) {
     const classIndex = Number(e.detail.value);
     const classes = this.data.classes;
@@ -83,6 +88,51 @@ Page({
 
     this.refresh();
     wx.showToast({ title: "新增成功", icon: "success" });
+  },
+
+  importStudentsByCSV() {
+    const text = String(this.data.importText || "").trim();
+    if (!text) {
+      wx.showToast({ title: "请先粘贴CSV内容", icon: "none" });
+      return;
+    }
+
+    const classes = this.data.classes;
+    if (!classes.length) {
+      wx.showToast({ title: "暂无班级，无法导入", icon: "none" });
+      return;
+    }
+
+    const classByName = {};
+    classes.forEach((c) => {
+      classByName[c.name] = c.id;
+    });
+
+    const lines = text.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+    const items = [];
+
+    lines.forEach((line) => {
+      const cols = line.split(",").map((x) => x.trim());
+      if (!cols.length || !cols[0]) {
+        return;
+      }
+      const classId = classByName[cols[1]] || classes[this.data.classIndex].id;
+      items.push({
+        name: cols[0],
+        classId,
+        phone: cols[2] || "",
+        guardian: cols[3] || ""
+      });
+    });
+
+    const created = db.addStudentsBatch(items);
+    this.setData({ importText: "" });
+    this.refresh();
+
+    wx.showToast({
+      title: "导入 " + created.length + " 条",
+      icon: "success"
+    });
   },
 
   toStudentDetail(e) {

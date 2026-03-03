@@ -134,6 +134,36 @@ function addStudent(payload) {
   return item;
 }
 
+function addStudentsBatch(items) {
+  const db = readDB();
+  const created = [];
+  const classIds = new Set(db.classes.map((c) => c.id));
+  const defaultClassId = db.classes.length ? db.classes[0].id : "";
+
+  (items || []).forEach((item) => {
+    const name = String(item.name || "").trim();
+    if (!name) {
+      return;
+    }
+    const classId = classIds.has(item.classId) ? item.classId : defaultClassId;
+    if (!classId) {
+      return;
+    }
+    const student = {
+      id: uid("stu"),
+      name,
+      classId,
+      phone: String(item.phone || "").trim(),
+      guardian: String(item.guardian || "").trim()
+    };
+    db.students.unshift(student);
+    created.push(student);
+  });
+
+  writeDB(db);
+  return created;
+}
+
 function saveLesson(payload) {
   const db = readDB();
   const lesson = {
@@ -331,6 +361,7 @@ module.exports = {
   getStudents,
   getStudentById,
   addStudent,
+  addStudentsBatch,
   saveLesson,
   getLessonsByStudent,
   saveExam,
