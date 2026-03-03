@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 02:49] Phase 33 - 课程导图切换 Canvas 2D 同层渲染（Done）
+- 目标：解决开发者工具 `canvas 2d` 性能提示并提升导图稳定性，将课程导出从旧 canvas API 迁移到 Canvas 2D node 接口。
+- 改动文件：`pages/lesson/lesson.wxml`、`pages/lesson/lesson.js`、`PLAN.md`。
+- 验收标准：`canvas` 使用 `type=\"2d\"`；导出通过 `canvas node + wx.canvasToTempFilePath` 成功预览；旧 `wx.createCanvasContext` 路径移除。
+- 风险与回滚：风险为个别低版本环境对 2D node 接口兼容差异；回滚方式为 `git revert` 本阶段提交并恢复旧导出接口。
+
 ## [UTC+8 2026-03-04 02:05] Phase 32 - 导出图片样式对齐 code.html（Done）
 - 目标：完全参考 `00/code.html` 的导出结构与视觉，重做课程导图为“橙色头图 + 信息卡宫格 + 三段内容卡 + 页脚”样式。
 - 改动文件：`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
@@ -217,6 +223,7 @@
 - Phase 30 课程操作图标极简化：Done
 - Phase 31 导出图片样式对齐 image_example 模板：Done
 - Phase 32 导出图片样式对齐 code.html：Done
+- Phase 33 课程导图切换 Canvas 2D 同层渲染：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -252,6 +259,7 @@
 - 2026-03-04：将课程操作图标改为极简线性符号，去除 emoji 视觉风格。
 - 2026-03-04：按 image_example 模板重做课程导出图，完成头图/信息卡/内容区/页脚结构对齐。
 - 2026-03-04：按 code.html 模板再次重构课程导图，导出样式全面切换为橙色移动端卡片风格。
+- 2026-03-04：课程导图切换为 Canvas 2D 同层渲染接口，解决旧接口性能提示并提升导出稳定性。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。

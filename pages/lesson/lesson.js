@@ -588,6 +588,56 @@ Page({
     });
   },
 
+  prepareExportCanvas(logicalWidth, logicalHeight) {
+    if (
+      this._exportCanvas &&
+      this._exportCanvas.ctx &&
+      this._exportCanvas.canvas &&
+      this._exportCanvas.logicalWidth === logicalWidth &&
+      this._exportCanvas.logicalHeight === logicalHeight
+    ) {
+      const cached = this._exportCanvas;
+      cached.ctx.setTransform(cached.dpr, 0, 0, cached.dpr, 0, 0);
+      cached.ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+      return Promise.resolve(cached);
+    }
+
+    return new Promise((resolve, reject) => {
+      const query = wx.createSelectorQuery().in(this);
+      query
+        .select("#lessonShareCanvas")
+        .fields({ node: true, size: true })
+        .exec((res) => {
+          const item = res && res[0];
+          if (!item || !item.node) {
+            reject(new Error("2d canvas node not found"));
+            return;
+          }
+
+          const canvas = item.node;
+          const ctx = canvas.getContext("2d");
+          const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+          const dpr = Number(info.pixelRatio || 1);
+
+          canvas.width = logicalWidth * dpr;
+          canvas.height = logicalHeight * dpr;
+
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+          const result = {
+            canvas,
+            ctx,
+            dpr,
+            logicalWidth,
+            logicalHeight
+          };
+          this._exportCanvas = result;
+          resolve(result);
+        });
+    });
+  },
+
   exportLessonImage(e) {
     const lessonId = e.currentTarget.dataset.id;
     const lesson = this.data.lessons.find((item) => item.id === lessonId);
@@ -596,7 +646,6 @@ Page({
       return;
     }
 
-    const ctx = wx.createCanvasContext("lessonShareCanvas", this);
     const width = 720;
     const height = 1420;
     const pageX = 22;
@@ -629,116 +678,129 @@ Page({
       ":" +
       String(now.getSeconds()).padStart(2, "0");
 
-    ctx.setFillStyle("#f8fafc");
-    ctx.fillRect(0, 0, width, height);
-
-    drawRoundedBlock(ctx, pageX, pageY, pageW, pageH, 30, "#ffffff", "#edf2f7", 1);
-
-    const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
-    headGrad.addColorStop(0, "#ff8a4a");
-    headGrad.addColorStop(1, "#ff7a38");
-    drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 30, headGrad, null, 0);
-    drawRoundedBlock(ctx, pageX, pageY + headerH - 30, pageW, 38, 0, "#ff7a38", null, 0);
-
-    ctx.setFillStyle("#ffffff");
-    ctx.setFontSize(46);
-    ctx.fillText("课程记录与反馈", pageX + 32, pageY + 84);
-    ctx.setFontSize(28);
-    ctx.setFillStyle("rgba(255,255,255,0.92)");
-    ctx.fillText("Lesson Record & Feedback", pageX + 32, pageY + 126);
-
-    const infoTop = contentY;
-    const boxGap = 12;
-    const boxW = (contentW - boxGap) / 2;
-    const boxH = 106;
-
-    infoRows.forEach((row, idx) => {
-      const col = idx % 2;
-      const r = Math.floor(idx / 2);
-      const x = contentX + col * (boxW + boxGap);
-      const y = infoTop + r * (boxH + boxGap);
-      drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#ffffff", "#f1f5f9", 1);
-      ctx.setFillStyle("#ff7a38");
-      drawRoundedBlock(ctx, x, y + 14, 8, boxH - 28, 2, "#ff7a38", null, 0);
-      ctx.setFillStyle("#9ca3af");
-      ctx.setFontSize(19);
-      ctx.fillText(row[0], x + 18, y + 32);
-      ctx.setFillStyle("#1f2937");
-      ctx.setFontSize(26);
-      drawParagraph(ctx, {
-        text: row[1],
-        x: x + 18,
-        y: y + 70,
-        maxWidth: boxW - 30,
-        lineHeight: 30,
-        maxLines: 1
-      });
-    });
-
-    function drawSection(y, icon, title, text, lineCap) {
-      ctx.setFillStyle("#ff7a38");
-      ctx.setFontSize(30);
-      ctx.fillText("|", contentX, y + 24);
-      ctx.setFillStyle("#111827");
-      ctx.setFontSize(28);
-      ctx.fillText(icon, contentX + 18, y + 24);
-      ctx.setFillStyle("#ff7a38");
-      ctx.setFontSize(31);
-      ctx.fillText(title, contentX + 54, y + 24);
-
-      const boxY = y + 38;
-      const boxHLocal = 166;
-      drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
-
-      ctx.setFillStyle("#4b5563");
-      ctx.setFontSize(22);
-      drawParagraph(ctx, {
-        text: text || "暂无内容",
-        x: contentX + 16,
-        y: boxY + 32,
-        maxWidth: contentW - 32,
-        lineHeight: 30,
-        maxLines: lineCap
-      });
-      return boxY + boxHLocal + 20;
-    }
-
-    let cursorY = infoTop + 3 * (boxH + boxGap) + 24;
-    cursorY = drawSection(cursorY, "📚", "课程内容", lesson.content, 4);
-    cursorY = drawSection(cursorY, "👨‍🎓", "学生情况", lesson.studentPerformance || lesson.comment || "", 4);
-    cursorY = drawSection(cursorY, "📝", "课后作业", lesson.homework, 4);
-
-    const footerH = 84;
-    const footerY = pageY + pageH - footerH;
-    drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#f1f5f9", 1);
-    ctx.setFillStyle("#9ca3af");
-    ctx.setFontSize(18);
-    ctx.fillText("生成时间: " + ts, pageX + 26, footerY + 34);
-    ctx.fillText("学生课程管理系统 v1.0", pageX + 26, footerY + 62);
-
     wx.showLoading({ title: "生成中..." });
-    ctx.draw(false, () => {
-      setTimeout(() => {
-        wx.canvasToTempFilePath(
-          {
-            canvasId: "lessonShareCanvas",
-            success: (res) => {
-              wx.hideLoading();
-              wx.previewImage({ urls: [res.tempFilePath] });
-            },
-            fail: (err) => {
-              wx.hideLoading();
-              console.error("exportLessonImage canvasToTempFilePath failed", err);
-              wx.showModal({
-                title: "导出失败",
-                content: "请升级基础库或点击清缓存后重试。",
-                showCancel: false
-              });
-            }
-          },
-          this
-        );
-      }, 120);
-    });
+    this.prepareExportCanvas(width, height)
+      .then(({ canvas, ctx }) => {
+        ctx.setFillStyle("#f8fafc");
+        ctx.fillRect(0, 0, width, height);
+
+        drawRoundedBlock(ctx, pageX, pageY, pageW, pageH, 30, "#ffffff", "#edf2f7", 1);
+
+        const headGrad = ctx.createLinearGradient(pageX, pageY, pageX + pageW, pageY + headerH);
+        headGrad.addColorStop(0, "#ff8a4a");
+        headGrad.addColorStop(1, "#ff7a38");
+        drawRoundedBlock(ctx, pageX, pageY, pageW, headerH, 30, headGrad, null, 0);
+        drawRoundedBlock(ctx, pageX, pageY + headerH - 30, pageW, 38, 0, "#ff7a38", null, 0);
+
+        ctx.setFillStyle("#ffffff");
+        ctx.setFontSize(46);
+        ctx.fillText("课程记录与反馈", pageX + 32, pageY + 84);
+        ctx.setFontSize(28);
+        ctx.setFillStyle("rgba(255,255,255,0.92)");
+        ctx.fillText("Lesson Record & Feedback", pageX + 32, pageY + 126);
+
+        const infoTop = contentY;
+        const boxGap = 12;
+        const boxW = (contentW - boxGap) / 2;
+        const boxH = 106;
+
+        infoRows.forEach((row, idx) => {
+          const col = idx % 2;
+          const r = Math.floor(idx / 2);
+          const x = contentX + col * (boxW + boxGap);
+          const y = infoTop + r * (boxH + boxGap);
+          drawRoundedBlock(ctx, x, y, boxW, boxH, 16, "#ffffff", "#f1f5f9", 1);
+          ctx.setFillStyle("#ff7a38");
+          drawRoundedBlock(ctx, x, y + 14, 8, boxH - 28, 2, "#ff7a38", null, 0);
+          ctx.setFillStyle("#9ca3af");
+          ctx.setFontSize(19);
+          ctx.fillText(row[0], x + 18, y + 32);
+          ctx.setFillStyle("#1f2937");
+          ctx.setFontSize(26);
+          drawParagraph(ctx, {
+            text: row[1],
+            x: x + 18,
+            y: y + 70,
+            maxWidth: boxW - 30,
+            lineHeight: 30,
+            maxLines: 1
+          });
+        });
+
+        const drawSection = (y, icon, title, text, lineCap) => {
+          ctx.setFillStyle("#ff7a38");
+          ctx.setFontSize(30);
+          ctx.fillText("|", contentX, y + 24);
+          ctx.setFillStyle("#111827");
+          ctx.setFontSize(28);
+          ctx.fillText(icon, contentX + 18, y + 24);
+          ctx.setFillStyle("#ff7a38");
+          ctx.setFontSize(31);
+          ctx.fillText(title, contentX + 54, y + 24);
+
+          const boxY = y + 38;
+          const boxHLocal = 166;
+          drawRoundedBlock(ctx, contentX, boxY, contentW, boxHLocal, 18, "#fcfcfc", "#f3f4f6", 2);
+
+          ctx.setFillStyle("#4b5563");
+          ctx.setFontSize(22);
+          drawParagraph(ctx, {
+            text: text || "暂无内容",
+            x: contentX + 16,
+            y: boxY + 32,
+            maxWidth: contentW - 32,
+            lineHeight: 30,
+            maxLines: lineCap
+          });
+          return boxY + boxHLocal + 20;
+        };
+
+        let cursorY = infoTop + 3 * (boxH + boxGap) + 24;
+        cursorY = drawSection(cursorY, "📚", "课程内容", lesson.content, 4);
+        cursorY = drawSection(cursorY, "👨‍🎓", "学生情况", lesson.studentPerformance || lesson.comment || "", 4);
+        cursorY = drawSection(cursorY, "📝", "课后作业", lesson.homework, 4);
+
+        const footerH = 84;
+        const footerY = pageY + pageH - footerH;
+        drawRoundedBlock(ctx, pageX, footerY, pageW, footerH, 0, "#f8fafc", "#f1f5f9", 1);
+        ctx.setFillStyle("#9ca3af");
+        ctx.setFontSize(18);
+        ctx.fillText("生成时间: " + ts, pageX + 26, footerY + 34);
+        ctx.fillText("学生课程管理系统 v1.0", pageX + 26, footerY + 62);
+
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            wx.canvasToTempFilePath(
+              {
+                canvas,
+                x: 0,
+                y: 0,
+                width,
+                height,
+                destWidth: width * 2,
+                destHeight: height * 2,
+                fileType: "png",
+                quality: 1,
+                success: resolve,
+                fail: reject
+              },
+              this
+            );
+          }, 50);
+        });
+      })
+      .then((res) => {
+        wx.hideLoading();
+        wx.previewImage({ urls: [res.tempFilePath] });
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        console.error("exportLessonImage failed", err);
+        wx.showModal({
+          title: "导出失败",
+          content: "请升级基础库或点击清缓存后重试。",
+          showCancel: false
+        });
+      });
   }
 });
