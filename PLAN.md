@@ -6,6 +6,12 @@
 - 废弃计划不删除，使用 `~~删除线~~` 保留历史。
 - 每条计划包含：目标、改动文件、验收标准、风险与回滚。
 
+## [UTC+8 2026-03-04 02:05] Phase 32 - 导出图片样式对齐 code.html（Done）
+- 目标：完全参考 `00/code.html` 的导出结构与视觉，重做课程导图为“橙色头图 + 信息卡宫格 + 三段内容卡 + 页脚”样式。
+- 改动文件：`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
+- 验收标准：导图在手机端呈现与 code.html 相同的信息分层和主色风格，信息区字段一致，三段内容区风格一致。
+- 风险与回滚：风险为 Web 字体与小程序 canvas 字体差异造成字重轻微偏差；回滚方式为 `git revert` 本阶段提交并恢复上一版导图样式。
+
 ## [UTC+8 2026-03-04 02:05] Phase 31 - 导出图片样式对齐 image_example 模板（Done）
 - 目标：按 `00/image_example.html` 的结构重做课程导出图片样式，实现头图、信息卡、内容区和页脚的视觉一致性。
 - 改动文件：`pages/lesson/lesson.js`、`pages/lesson/lesson.wxml`、`pages/lesson/lesson.wxss`、`PLAN.md`。
@@ -210,6 +216,7 @@
 - Phase 29 课程导出图片移动端适配重构：Done
 - Phase 30 课程操作图标极简化：Done
 - Phase 31 导出图片样式对齐 image_example 模板：Done
+- Phase 32 导出图片样式对齐 code.html：Done
 
 ## 执行日志
 - 2026-03-03：完成独立仓库初始化并推送 `main`。
@@ -244,6 +251,7 @@
 - 2026-03-04：完成课程导出图片移动端适配重构，优化层级、留白与文本可读性。
 - 2026-03-04：将课程操作图标改为极简线性符号，去除 emoji 视觉风格。
 - 2026-03-04：按 image_example 模板重做课程导出图，完成头图/信息卡/内容区/页脚结构对齐。
+- 2026-03-04：按 code.html 模板再次重构课程导图，导出样式全面切换为橙色移动端卡片风格。
 
 ## [UTC+8 2026-03-03 22:38] Phase 3 - PLAN 收敛与进度固化（Done）
 - 目标：完善计划总览、阶段状态、执行日志与风险回滚说明，形成统一进度事实来源。
